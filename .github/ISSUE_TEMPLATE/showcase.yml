@@ -1,0 +1,60 @@
+name: Showcase entry · 사용 사례 등록
+description: Share a good use of FDE Workbench or its skills. A maintainer turns it into a showcase entry. (Prefer a PR if you can; see showcase/README.md.)
+title: "showcase: "
+labels: [showcase]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Only link **public** material you may share. No customer data, secrets or non-public logs. · **공개 가능한** 자료만 링크하세요.
+  - type: input
+    id: title
+    attributes:
+      label: Title · 제목
+      description: Up to 80 characters.
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary · 요약
+      description: One or two sentences, up to 200 characters. The problem, what you chose and why.
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Link · 링크 (https)
+    validations:
+      required: true
+  - type: dropdown
+    id: evidence
+    attributes:
+      label: Evidence level · 근거 수준
+      description: What the linked material demonstrates. See showcase/README.md.
+      options: [production, pilot, desk-review, synthetic]
+    validations:
+      required: true
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain · 분야
+      options: [energy, mobility, customer-support, partner-operations, logistics, manufacturing, finance, healthcare, public-sector, retail, education, developer-tools, other]
+    validations:
+      required: true
+  - type: input
+    id: skills
+    attributes:
+      label: Skills used · 사용한 skill
+      placeholder: fde-workbench, fde-cost-model
+    validations:
+      required: true
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Confirmation
+      options:
+        - label: The link is public and contains no customer data or secrets. · 링크는 공개 자료이며 고객 데이터·비밀값이 없습니다.
+          required: true
+        - label: The claims match the evidence level. · 주장이 근거 수준과 맞습니다.
+          required: true

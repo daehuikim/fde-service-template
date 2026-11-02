@@ -1,0 +1,14 @@
+{
+  "id": "support-triage",
+  "title": "Maintenance request triage",
+  "title_ko": "유지보수 요청 분류",
+  "summary": "The bundled example: route maintenance requests to clear owners without automating safety decisions. Run it with fde example support-triage.",
+  "summary_ko": "기본 내장 예제입니다. 안전 판단은 자동화하지 않고 유지보수 요청을 명확한 담당자에게 배정합니다. fde example support-triage로 실행합니다.",
+  "url": "https://github.com/daehuikim/fde-service-template/blob/main/src/fde_workbench/resources/examples/support-triage.en.json",
+  "authors": ["daehuikim"],
+  "date": "2026-11-02",
+  "domain": "customer-support",
+  "evidence": "synthetic",
+  "skills": ["fde-workbench"],
+  "language": "en+ko"
+}

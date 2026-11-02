@@ -1,0 +1,14 @@
+{
+  "id": "ev-siting",
+  "title": "EV charging site screening",
+  "title_ko": "EV 충전소 입지 검토",
+  "summary": "Shows why data reconciliation and a survey shortlist come before an investment optimizer, using a public AFDC station snapshot and a numeric counterexample.",
+  "summary_ko": "공개 AFDC 충전소 스냅샷과 수치 반례로, 투자 최적화보다 자료 정합성 확인과 조사 shortlist가 먼저임을 보인 설계입니다.",
+  "url": "https://github.com/daehuikim/fde-service-template/tree/main/designs/ev-siting",
+  "authors": ["daehuikim"],
+  "date": "2026-11-02",
+  "domain": "energy",
+  "evidence": "desk-review",
+  "skills": ["fde-workbench"],
+  "language": "ko"
+}

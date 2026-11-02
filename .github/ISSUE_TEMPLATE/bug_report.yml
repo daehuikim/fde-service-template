@@ -1,0 +1,49 @@
+name: Bug report · 버그 리포트
+description: Something in the CLI, library, skill or web example does not work as documented.
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Remove secrets, customer data and internal hostnames from everything you paste. · 붙여넣는 내용에서 비밀값·고객 데이터·내부 호스트명을 지워 주세요.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area · 영역
+      options: [Python CLI / library, Portable skill (fde-workbench), Project skill (.agents/skills), Web example, Docs, Other]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version · 버전
+      description: Output of `fde --version`, or the commit SHA.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment · 환경
+      placeholder: e.g. Ubuntu 24.04, Python 3.12, uv 0.9
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce · 재현 절차
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual · 기대 결과와 실제 결과
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues. · 기존 이슈를 검색했습니다.
+          required: true
+        - label: This is not a security vulnerability. · 보안 취약점이 아닙니다.
+          required: true

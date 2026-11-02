@@ -1,0 +1,36 @@
+name: Feature or skill proposal · 기능·skill 제안
+description: Propose a capability, a new skill or a change to an existing one. Agree on the problem before writing code.
+labels: [enhancement, needs-triage]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind · 종류
+      options: [New skill, Change to a skill, CLI / library feature, Schema or contract change, Docs, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem · 문제
+      description: Who has the problem, in what situation, and what they do today. · 누가, 어떤 상황에서, 지금은 어떻게 하는지.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal · 제안
+      description: What changes, the expected output, and how we would check it works. · 무엇이 바뀌고 결과물이 무엇이며 어떻게 검증하는지.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered · 검토한 대안
+      description: Including "do nothing" or an existing skill. · "하지 않음"이나 기존 skill 포함.
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I can open a PR for this. · 직접 PR을 올릴 수 있습니다.
