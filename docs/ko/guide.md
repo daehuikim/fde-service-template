@@ -35,7 +35,7 @@ fde skill install --directory .agents/skills
 fde skill build --output fde-workbench-skill.zip
 ```
 
-설치 폴더를 명시해야 하며 호스트 설정이나 모델/도구 접근 권한을 바꾸지 않습니다. skill에는 지침·설계 계약·방법 선택 자료·MIT 고지·해시 manifest가 들어갑니다. CLI 없이 지침을 사용할 수도 있지만 자동 검사는 미실시로 기록해야 합니다. 사용하는 호스트가 지원하는 skills 폴더에 설치하세요.
+설치 폴더를 명시해야 하며 호스트 설정이나 모델/도구 접근 권한을 바꾸지 않습니다. skill에는 지침·설계 계약·방법 선택 자료·검토 관점 자료·MIT 고지·해시 manifest가 들어갑니다. CLI 없이 지침을 사용할 수도 있지만 자동 검사는 미실시로 기록해야 합니다. 사용하는 호스트가 지원하는 skills 폴더에 설치하세요.
 
 ## 언어
 

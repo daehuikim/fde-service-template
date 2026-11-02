@@ -218,6 +218,7 @@ def test_skill_is_portable_versioned_and_requires_explicit_directory(tmp_path):
     assert target.name == "fde-workbench"
     assert (target / "SKILL.md").exists()
     assert (target / "references/design.schema.json").exists()
+    assert (target / "references/reviews.md").exists()
     manifest = json.loads((target / "manifest.json").read_text())
     for name, digest in manifest["files"].items():
         assert hashlib.sha256((target / name).read_bytes()).hexdigest() == digest
@@ -285,6 +286,35 @@ def test_skill_frontmatter_and_references_are_self_contained():
     assert metadata["name"] == "fde-workbench"
     assert "operational problem" in metadata["description"]
     assert resource_text("skill/references/methods.md")
+    reviews = resource_text("skill/references/reviews.md")
+    assert "references/reviews.md" in text
+    for lens in (
+        "Feature teardown",
+        "Compatibility and deployment scalability",
+        "Validation method",
+        "Target environment fit",
+    ):
+        assert f"## {lens}" in reviews
     assert (
         json.loads(resource_text("skill/references/design.schema.json"))["$id"] == "fde.design.v1"
     )
+
+
+def test_repository_skill_copy_matches_packaged_skill():
+    from fde_workbench.delivery import skill_files
+
+    source = Path(".agents/skills/fde-workbench")
+    if not source.exists():
+        pytest.skip("source-checkout parity check; installed distribution is self-contained")
+    packaged = skill_files()
+    on_disk = {
+        str(path.relative_to(source)).replace("\\", "/"): path.read_bytes()
+        for path in source.rglob("*")
+        if path.is_file()
+    }
+    assert set(on_disk) == set(packaged)
+    for name, data in packaged.items():
+        if name == "manifest.json":
+            assert json.loads(on_disk[name]) == json.loads(data)
+        else:
+            assert on_disk[name] == data, name

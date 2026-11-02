@@ -1,6 +1,6 @@
 ---
 name: fde-workbench
-description: Turn an operational problem into a short decision brief and evidence-led design. Use when comparing approaches, deciding what to build, or reviewing data, tradeoffs, scalability and weaknesses before implementation.
+description: Turn an operational problem into a short decision brief and evidence-led design. Use when comparing approaches, deciding what to build, tearing down open-source or commercial features, or reviewing data, tradeoffs, compatibility, scalability, validation methods, customer deployment fit, security, cost and weaknesses.
 ---
 
 # FDE Workbench
@@ -8,6 +8,8 @@ description: Turn an operational problem into a short decision brief and evidenc
 Start with a concise draft in the user's language: background, pain, value hypothesis, technical approach and reason, scale trigger, strongest counterargument, next check. Keep the body around 900 characters; do not promise a measured reading time. Give useful assumptions explicitly before waiting for a complete dossier.
 
 Research the current workflow and available authorized evidence. Separate observations, vendor reports and synthetic examples. Compare materially different relevant methods, including the current/manual alternative. Read [method selection](references/methods.md) when choosing a technical combination; it defines ontology, harness, provider and RAG without requiring them.
+
+When the user asks for a feature teardown of open-source or commercial options, a compatibility or deployment-scalability review, a check of a validation method, a fit check against a customer's OS/software versions and deployment form, field debugging, a security/data-boundary review or a cost model, apply the matching lens in [review lenses](references/reviews.md).
 
 Select for this decision and evidence level. Explain rejection reasons, assumptions and conditions that would reverse the choice. Critique from relevant user, data, cost, security and operations perspectives; label a single agent's viewpoints as self review. Include operating ownership, identity/data boundaries, failure recovery and release/rollback in the handoff. If the user asks for design only, stop before implementing the product.
 
