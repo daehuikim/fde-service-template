@@ -4,6 +4,8 @@ This repository ships an offline Python CLI/library and a portable problem-desig
 
 For an operational design request, follow `.agents/skills/fde-workbench/SKILL.md`: concise draft first; compare relevant methods; separate evidence, assumptions and vendor claims; critique the approach; state expansion triggers and the next verification. Respect design-only scope. Ontology, LLM, RAG, optimization and a web framework are optional choices.
 
+For a feature teardown, compatibility/deployment-scalability review, validation-method review, customer-environment deployment fit, field debugging, security/data-boundary review or cost model, use the matching skill listed in `.agents/skills/README.md`. Customer environment probes, logs and questionnaires are customer data: keep them out of public files.
+
 For package work:
 - Read `pyproject.toml`, `src/fde_workbench` and the relevant English/Korean guide.
 - Run `uv run ruff check src tests`, `uv run ruff format --check src tests` and `uv run pytest`.

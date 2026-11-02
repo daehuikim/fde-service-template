@@ -34,7 +34,7 @@ Export requires a structurally valid, review-ready design and creates a new dest
 fde skill install --directory .agents/skills
 ```
 
-The destination is explicit. The installed folder includes instructions, the design schema, method-selection reference, MIT notice and a file-hash manifest. Use a skills directory supported by your host; this command does not change host settings or enable model/tool access. To share the skill itself:
+The destination is explicit. The installed folder includes instructions, the design schema, method-selection reference, review lenses, MIT notice and a file-hash manifest. Use a skills directory supported by your host; this command does not change host settings or enable model/tool access. To share the skill itself:
 
 ```sh
 fde skill build --output fde-workbench-skill.zip

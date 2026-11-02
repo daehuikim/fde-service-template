@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Add review lenses to the portable skill: feature teardown, compatibility and deployment scalability, validation method, target-environment fit, field debugging, security/data boundary and cost model.
+- Add matching project skills (`fde-feature-teardown`, `fde-compat-scale-review`, `fde-validation-review`, `fde-target-env`, `fde-field-debug`, `fde-security-review`, `fde-cost-model`) and a skill catalog.
+- Add a read-only POSIX environment probe and an OS/runtime compatibility matrix for customer deployments.
+- Test that the repository copy of the portable skill matches the packaged resources.
+
 ## 0.2.0 — 2026-11-02
 
 - Introduce the installable `fde-workbench` Python CLI and typed library.

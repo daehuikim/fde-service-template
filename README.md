@@ -76,7 +76,21 @@ Ask your assistant:
 
 > Use FDE Workbench to review this operational problem. Give me a short draft first, compare relevant approaches, challenge the assumptions, and stop at a design handoff.
 
-The installer adds `fde-workbench/SKILL.md`, its contract and method-selection reference. It changes no global configuration and refuses to replace an existing skill. You can also unpack the release skill ZIP into your agent's supported skills directory. [Skill guide](docs/en/guide.md#install-the-skill)
+The installer adds `fde-workbench/SKILL.md`, its contract, method-selection reference and review lenses. It changes no global configuration and refuses to replace an existing skill. You can also unpack the release skill ZIP into your agent's supported skills directory. [Skill guide](docs/en/guide.md#install-the-skill)
+
+### Review lenses for field work
+
+Beyond problem design, the skill carries focused review lenses you can ask for by name:
+
+| Ask for | You get |
+|---|---|
+| **Feature teardown** of open-source and commercial options | Module-by-module mechanism, prerequisites, limits, lock-in and evidence grade; adopt / integrate / build / exclude per module |
+| **Compatibility and deployment-scalability review** | Version and platform surface, scaling limits with the signals that reveal them, keep / keep-with-conditions / change |
+| **Validation-method review** | Whether each test actually proves its claim, the level it reaches, and the claim rewritten to what is proven |
+| **Target-environment fit** | Deployment form and image rules matched to the customer's OS, kernel, runtime, Kubernetes and network constraints |
+| **Field debugging, security/data boundary, cost model** | Environment diff and hypothesis elimination; data flow and outbound-call inventory; unit cost, sensitivity and break-even |
+
+This repository also includes matching project skills and a read-only customer environment probe. See the [skill catalog](.agents/skills/README.md).
 
 ## Use it as a Python library
 
