@@ -1,0 +1,362 @@
+{
+  "version": "1",
+  "id": "ev-siting",
+  "stage": "review_ready",
+  "decisionOwner": "충전망 기획 담당자와 현장 조사/투자 승인 책임자",
+  "problem": "여러 후보 중 어디를 더 조사하고, 데이터가 준비되면 어디에 투자할지 결정해야 한다. 단순 지도나 대화형 답변 생성 문제가 아니다.",
+  "currentWorkflow": "공식 사례는 Excel과 여러 앱에서 정보를 수작업으로 합치는 평가 과정을 설명한다. 현재 검증 대상 조직의 작업시간/데이터는 확보하지 못했다.",
+  "decisionToSupport": "현재는 조사할 후보와 부족한 근거를 정리하는 단계다. 검증된 비용/수요/전력 자료가 생기면 제약 안의 후보 조합을 비교하는 단계로 전환한다.",
+  "nonGoals": [
+    "공개 충전소 8건만으로 설치 위치·수익성·전력망 연결 가능성을 확정하지 않는다.",
+    "온톨로지·LLM·예측 모델·정수최적화·Next.js 중 어느 것도 출발 조건으로 강제하지 않는다.",
+    "현장 방문, 계통 접속 승인, 실제 투자나 건설 실행을 자동화하지 않는다."
+  ],
+  "sources": [
+    {
+      "id": "palantir-ev",
+      "kind": "official_case",
+      "url": "https://www.palantir.com/docs/foundry/use-case-examples/improving-profitability-of-ev-chargepoints-through-integrated-location-optimization",
+      "checkedAt": "2026-11-02",
+      "supports": "비용·수익·기존 및 계획 입지·전력망 자료를 연결하는 업무 맥락을 설명한다.",
+      "limits": "공급업체의 사례 보고이며 고객 원자료/측정 프로토콜/알고리즘은 공개되지 않았다."
+    },
+    {
+      "id": "doe-readiness",
+      "kind": "official_case",
+      "url": "https://afdc.energy.gov/fuels/electricity-ev-readiness",
+      "checkedAt": "2026-11-02",
+      "supports": "공급 현황, 전력공급 평가, 공사비, 부지와 이해관계자를 별도로 조사할 필요가 있다.",
+      "limits": "한국 현장 기준/허가를 대신하지 않는다. 지역별 전문가 확인이 필요하다."
+    },
+    {
+      "id": "afdc-eight",
+      "kind": "public_dataset",
+      "url": "https://developer.nlr.gov/docs/transportation/alt-fuel-stations-v1/",
+      "checkedAt": "2026-11-02",
+      "supports": "공식 API에서 기존 충전소의 위치/접근/상태/확인일 8건을 수집했다.",
+      "limits": "California 첫 8건의 편의 표본이다. 전체 후보·수요·수익·전력 여유·운영 가동률을 나타내지 않는다."
+    },
+    {
+      "id": "ev-mock",
+      "kind": "synthetic",
+      "url": "fixture://ev-siting/decision-table",
+      "checkedAt": "2026-11-02",
+      "supports": "4개 가상 수요권역과 4개 가상 후보로 중복 coverage와 예산 제약의 설계 반례를 만든다.",
+      "limits": "실제 수요·건설비·사유지 사용 가능성·규제·수익성 정보가 전혀 아니다."
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "manual-scorecard",
+      "method": "스프레드시트와 체크리스트",
+      "mechanism": "조사 담당자가 각 후보의 적격성/근거/미확인 값을 수동으로 기록한다.",
+      "dataNeeded": "소수 후보의 검토 가능한 원본과 책임자",
+      "worksWhen": "후보와 업데이트가 적고 조사 업무가 주로 사람의 확인에 달린 경우",
+      "failsWhen": "후보와 갱신/여러 사용자 변경이 늘면 누락과 버전 충돌이 커진다.",
+      "costAndOperations": "별도 앱 없이 시작할 수 있으나 사람의 갱신 비용을 계속 측정해야 한다.",
+      "disposition": "conditional",
+      "reason": "초기 discovery의 실제 baseline으로 유지하고 사용자 시간은 관찰 전까지 비워 둔다.",
+      "evidenceIds": [
+        "palantir-ev",
+        "doe-readiness"
+      ]
+    },
+    {
+      "id": "relational-screening",
+      "method": "관계형 데이터와 공간 조회·시나리오 검토",
+      "mechanism": "출처/기준일이 있는 표를 join하고 hard exclusion을 적용한 조사 shortlist를 만든다.",
+      "dataNeeded": "공급/계획/후보 테이블, 키 정합성, 조사 결과와 원본 시점",
+      "worksWhen": "현재처럼 근거 수집이 병목이고 투자 최적화 입력이 미확인인 경우",
+      "failsWhen": "임의의 가중 점수를 실제 수익률로 해석하거나 단일 순위로 조합 문제를 대신하면 실패한다.",
+      "costAndOperations": "작은 batch는 파일/SQL로 시작하고 동시 갱신과 공간량이 확인되면 PostgreSQL/PostGIS를 선택한다.",
+      "disposition": "selected",
+      "reason": "현재 증거 수준에서 정직하게 지원할 수 있는 결정은 조사 우선순위와 데이터 부족 확인이다.",
+      "evidenceIds": [
+        "afdc-eight",
+        "doe-readiness"
+      ]
+    },
+    {
+      "id": "constrained-optimization",
+      "method": "예산 제약이 있는 조합 최적화",
+      "mechanism": "후보별 이진 변수와 중복 제거 coverage, 예산/최대개수/형평성/적격성 제약으로 feasible 대안을 비교한다.",
+      "dataNeeded": "검증된 수요 또는 목표 proxy, 비용 범위, grid/permit 상태, 도달성 행렬",
+      "worksWhen": "조합 투자 결정을 내려야 하고 수치 입력과 목표가 승인된 경우",
+      "failsWhen": "불확실한 자료를 확정값으로 넣거나 proxy coverage를 수익/인과효과로 오인하면 실패한다.",
+      "costAndOperations": "작은 경우 독립 계산표로 검산하고 규모가 커지면 MIP solver와 시간/gap 예산을 도입한다.",
+      "disposition": "conditional",
+      "reason": "현재 데이터에는 투자 입력이 없으므로 도입을 미룬다. 조합 반례는 도입 조건을 설명할 뿐 지금 투자안을 만들지 않는다.",
+      "evidenceIds": [
+        "palantir-ev",
+        "ev-mock"
+      ]
+    },
+    {
+      "id": "demand-forecast",
+      "method": "수요 예측/통계 모델",
+      "mechanism": "충전 세션·트래픽·가격 이력에서 시간/공간 수요를 추정하고 불확실성을 함께 예측한다.",
+      "dataNeeded": "대표성 있는 시계열, 가격/가용성/계절성, 시간분할 검증 데이터",
+      "worksWhen": "관측 수요의 부족이 의사결정 오차를 지배하고 충분한 표본이 있는 경우",
+      "failsWhen": "기존 공급 위치와 수요 간 선택편향을 무시하거나 미래 데이터를 누출하면 실패한다.",
+      "costAndOperations": "데이터 취득·drift/재학습·모델 검증 비용이 있으므로 단순 forecast와 먼저 비교한다.",
+      "disposition": "rejected",
+      "reason": "현재 8개 위치 표본에 수요/이용 이력이 없어서 모델 품질을 평가할 수 없다.",
+      "evidenceIds": [
+        "afdc-eight"
+      ]
+    },
+    {
+      "id": "semantic-ontology",
+      "method": "공유 업무 객체/온톨로지 플랫폼",
+      "mechanism": "여러 조직의 Site/Connection/Investment/Asset와 action 권한을 지속 공유하는 의미 계층을 만든다.",
+      "dataNeeded": "조직간 정의/소유권/식별자/행위 모델과 실제 반복 재사용 수요",
+      "worksWhen": "여러 팀/서비스가 같은 객체와 action semantics를 반복 사용해 조정 비용이 큰 경우",
+      "failsWhen": "단일 조사 workflow에 플랫폼부터 도입하면 운영/변경 비용이 문제보다 커질 수 있다.",
+      "costAndOperations": "모델 governance와 플랫폼/운영 소유자가 필요하다. 단순 SQL과 비교한 추가 가치를 검증한다.",
+      "disposition": "rejected",
+      "reason": "이번 작은 조사 범위에 재사용/거버넌스 요구가 확인되지 않았다. 향후 팀 경계가 늘면 재검토한다.",
+      "evidenceIds": [
+        "palantir-ev",
+        "doe-readiness"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "demand-unknown",
+      "statement": "권역 수요와 이용률은 현재 합성 가정이며 공개 충전소 위치에서 추론하지 않는다.",
+      "impact": "투자 효과와 수익 추정이 근거 없는 수치가 된다.",
+      "verification": "운영 세션/차량/통행 자료의 대표성과 수집 권한을 확인하고 현장 baseline을 만든다.",
+      "blocks": "investment"
+    },
+    {
+      "id": "cost-grid-unknown",
+      "statement": "후보 공사비와 전력 여유, 토지 사용/허가는 미확인이다.",
+      "impact": "예산을 넘거나 설치 불가능한 부지가 선택될 수 있다.",
+      "verification": "계통 사업자/부지 담당자 확인서와 비용 견적의 날짜/범위를 확보한다.",
+      "blocks": "execution"
+    },
+    {
+      "id": "planned-uncertain",
+      "statement": "계획된 충전소는 확정된 기존 공급과 동일하게 간주할 수 없다.",
+      "impact": "계획 취소/지연 때 공급 공백이 생긴다.",
+      "verification": "계획 상태와 예상일을 분리하고 계획 실현/미실현 두 시나리오를 검토한다.",
+      "blocks": "investment"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "ev-stale",
+      "trigger": "기존 충전소 확인일이 검토 freshness 기준 90일을 넘는다.",
+      "expectedResponse": "현재 가동 중이라고 단정하지 않고 재확인 대상으로 표시한다.",
+      "requiredDesignChange": "원본 확인일과 수집일을 분리하고 freshness 정책을 명시한다.",
+      "alternativeIds": [
+        "relational-screening"
+      ],
+      "evaluationMethod": "설계 문서와 상태/실패 경로의 desk review. 제품 실행 또는 사용자 관찰 결과가 아님."
+    },
+    {
+      "id": "ev-overlap",
+      "trigger": "높은 개별 순위 후보가 같은 수요권역을 중복으로 덮는다.",
+      "expectedResponse": "중복 없이 조합 coverage를 계산하고 순위 합계와 구분한다.",
+      "requiredDesignChange": "단일 점수 정렬에서 조합 제약 평가로 바꾸는 도입 gate를 둔다.",
+      "alternativeIds": [
+        "manual-scorecard",
+        "constrained-optimization"
+      ],
+      "evaluationMethod": "설계 문서와 상태/실패 경로의 desk review. 제품 실행 또는 사용자 관찰 결과가 아님."
+    },
+    {
+      "id": "ev-missing-grid",
+      "trigger": "아주 매력적인 후보의 grid/허가 값이 unknown이다.",
+      "expectedResponse": "설치 가능으로 자동 보정하지 않고 조사 대상으로 남기며 투자 결정을 보류한다.",
+      "requiredDesignChange": "unknown/false/true 상태와 증빙 소유자를 분리한다.",
+      "alternativeIds": [
+        "relational-screening"
+      ],
+      "evaluationMethod": "설계 문서와 상태/실패 경로의 desk review. 제품 실행 또는 사용자 관찰 결과가 아님."
+    },
+    {
+      "id": "ev-budget-risk",
+      "trigger": "비용 상한으로 계산하면 명목 예산을 넘는 조합이다.",
+      "expectedResponse": "nominal/상한 두 시나리오의 feasible 여부를 따로 제시한다.",
+      "requiredDesignChange": "일점 비용 가정 대신 범위와 전환 결정을 기록한다.",
+      "alternativeIds": [
+        "constrained-optimization"
+      ],
+      "evaluationMethod": "설계 문서와 상태/실패 경로의 desk review. 제품 실행 또는 사용자 관찰 결과가 아님."
+    },
+    {
+      "id": "ev-planned",
+      "trigger": "근처 계획 충전소가 취소되거나 지연된다.",
+      "expectedResponse": "현재/계획실현/계획미실현을 분리하고 shortlist 변동을 재검토한다.",
+      "requiredDesignChange": "계획 공급을 실제 공급으로 확정 합산하지 않는다.",
+      "alternativeIds": [
+        "relational-screening",
+        "constrained-optimization"
+      ],
+      "evaluationMethod": "설계 문서와 상태/실패 경로의 desk review. 제품 실행 또는 사용자 관찰 결과가 아님."
+    },
+    {
+      "id": "ev-no-feasible",
+      "trigger": "예산/형평성/적격성 제약을 만족하는 대안이 하나도 없다.",
+      "expectedResponse": "가장 덜 나쁜 것을 feasible로 표시하지 않고 조건 충돌과 완화 요청을 내보낸다.",
+      "requiredDesignChange": "infeasible/insufficient_evidence/no_change를 서로 다른 상태로 설계한다.",
+      "alternativeIds": [
+        "constrained-optimization"
+      ],
+      "evaluationMethod": "설계 문서와 상태/실패 경로의 desk review. 제품 실행 또는 사용자 관찰 결과가 아님."
+    },
+    {
+      "id": "ev-scale",
+      "trigger": "실제 후보가 수천 개로 늘고 데이터/목표가 승인된다.",
+      "expectedResponse": "작은 표의 전수 조합 계산을 재사용하지 않고 solver/시간상한/optimality gap을 검토한다.",
+      "requiredDesignChange": "규모 변화가 method 변경을 유발하는 명시적 기준을 둔다.",
+      "alternativeIds": [
+        "constrained-optimization"
+      ],
+      "evaluationMethod": "설계 문서와 상태/실패 경로의 desk review. 제품 실행 또는 사용자 관찰 결과가 아님."
+    },
+    {
+      "id": "ev-reuse",
+      "trigger": "여러 부서가 동일 asset/connection/action 권한을 반복 공유하게 된다.",
+      "expectedResponse": "관계형 조회만 고집하지 않고 공유 객체/온톨로지의 운영 비용과 재사용 이득을 비교한다.",
+      "requiredDesignChange": "선택을 고정하지 않고 governance/소유권 재설계 ADR을 연다.",
+      "alternativeIds": [
+        "semantic-ontology"
+      ],
+      "evaluationMethod": "설계 문서와 상태/실패 경로의 desk review. 제품 실행 또는 사용자 관찰 결과가 아님."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "ev-r-supply",
+      "need": "기존/계획 공급의 상태와 기준일을 구분해야 한다.",
+      "acceptance": "두 공급을 다른 상태로 다루고 stale 확인일을 표시한다.",
+      "sourceIds": [
+        "palantir-ev",
+        "afdc-eight"
+      ],
+      "scenarioIds": [
+        "ev-stale",
+        "ev-planned"
+      ]
+    },
+    {
+      "id": "ev-r-eligibility",
+      "need": "전력/토지/허가 미확인을 설치 가능으로 바꾸면 안 된다.",
+      "acceptance": "unknown 후보는 추가 조사로 남고 투자 승인으로 넘어가지 않는다.",
+      "sourceIds": [
+        "doe-readiness"
+      ],
+      "scenarioIds": [
+        "ev-missing-grid"
+      ]
+    },
+    {
+      "id": "ev-r-budget",
+      "need": "조합의 중복과 예산 불확실성을 함께 검토해야 한다.",
+      "acceptance": "coverage 중복 제거와 비용 상한 시나리오가 명시된다.",
+      "sourceIds": [
+        "palantir-ev",
+        "ev-mock"
+      ],
+      "scenarioIds": [
+        "ev-overlap",
+        "ev-budget-risk"
+      ]
+    },
+    {
+      "id": "ev-r-failure",
+      "need": "불가능하거나 입력이 부족한 결정은 보류해야 한다.",
+      "acceptance": "infeasible과 insufficient_evidence가 구분된다.",
+      "sourceIds": [
+        "ev-mock",
+        "doe-readiness"
+      ],
+      "scenarioIds": [
+        "ev-no-feasible"
+      ]
+    },
+    {
+      "id": "ev-r-method",
+      "need": "방법은 규모와 재사용 요구가 바뀌면 재선택해야 한다.",
+      "acceptance": "solver/semantic layer의 도입 조건과 기각 근거가 있다.",
+      "sourceIds": [
+        "palantir-ev"
+      ],
+      "scenarioIds": [
+        "ev-scale",
+        "ev-reuse"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "ev-claim-context",
+      "kind": "source_report",
+      "statement": "공식 사례는 여러 정보원을 결합해 충전망 계획을 지원하는 업무를 기술한다.",
+      "sourceIds": [
+        "palantir-ev"
+      ],
+      "limit": "그 고객의 성과 수치를 이 템플릿의 성과로 재사용하지 않는다."
+    },
+    {
+      "id": "ev-claim-proxy",
+      "kind": "hypothesis",
+      "statement": "자료 정합성과 미확인 값 노출이 초기 조사 오류를 줄일 수 있다.",
+      "sourceIds": [
+        "afdc-eight",
+        "doe-readiness"
+      ],
+      "limit": "실제 담당자 관찰과 baseline 시간이 없어 개선을 검증하지 못했다."
+    }
+  ],
+  "deployment": {
+    "runtime": "초기에는 버전 고정 파일/SQL과 조사 문서로 충분하다. 동시 사용·지리 조회량이 확인되면 DB+내부 웹을 선택한다.",
+    "identityBoundary": "기획 담당자는 조회/제안, 현장 담당자는 증빙 갱신, 투자 책임자는 승인한다. 서버에서 조직/역할을 검증한다.",
+    "dataBoundary": "공개 공급 데이터와 비공개 견적/토지/계통 자료를 분리하고 source version/취득 권한을 기록한다.",
+    "capacityModel": "현재 8개 기존 공급 표본은 성능 평가 데이터가 아니다. 실제 후보/권역/갱신량을 측정 후 SQL/solver 실행 예산을 정한다.",
+    "failureRecovery": "원본 snapshot을 보존하고 마지막 성공 refresh/미확인 값을 표시한다. 일부 실패를 최신 정상 데이터처럼 합치지 않는다.",
+    "releaseRollback": "규칙/가중치/입력 snapshot hash가 같은 설계 검토본을 보존한다. 승인 후 값이 바뀌면 이전 승인을 무효화하고 재검토한다.",
+    "observability": "수집 실패율/자료 나이/미확인 후보/의사결정 변경 근거를 기록하며 개인 이동 이력은 수집하지 않는다.",
+    "operatingOwner": "데이터 소유자와 기획 책임자가 freshness 기준과 재평가 주기를 승인한다. 실제 운영 시스템은 아직 구현하지 않았다."
+  },
+  "nextValidation": "기획 담당자 2명과 후보 조사 task를 기존 시트/설계안으로 교차 수행한다. 오류/누락/근거 이해/수정 횟수/완료 시간을 관찰한 뒤 투자 입력의 추가 취득 여부를 결정한다.",
+  "executionAllowed": false,
+  "brief": {
+    "background": "충전망 기획자가 다음 조사·투자 후보를 골라야 합니다. 현재 자료로 투자 추천까지 해도 되는지가 먼저입니다.",
+    "painPoint": "여러 앱·시트의 공급/계획/견적을 합치며, 중복 권역·오래된 정보·전력 여유 미확인을 놓칠 수 있습니다.",
+    "valueHypothesis": "후보별 근거와 빈칸을 모아 재확인 수고를 줄이는 조사 지원입니다. 수익 개선은 아직 가설입니다.",
+    "technicalCombination": "지금은 표/SQL+공간 조회+적격성 규칙+사람 검토. 수요·비용이 검증되면 조합 최적화를 비교합니다. LLM/온톨로지는 필수가 아닙니다.",
+    "scaleTrigger": "후보 조합이 커지면 solver, 여러 팀이 객체·행위를 재사용하면 의미 계층을 재검토합니다.",
+    "weaknessCounterargument": "공개 위치 8건은 수요·비용·계통 자료가 아니고, 7건의 확인일은 예시 기준90일보다 오래됐습니다. 지금 투자안을 내면 과장입니다.",
+    "nextCheck": "현장 후보/견적/계통 자료와 기획자 관찰을 확보해 시트 대비 누락·시간을 비교합니다. 현재는 조사 설계까지입니다."
+  },
+  "critiques": [
+    {
+      "lens": "업무/채택 관점",
+      "challenge": "기획자가 필요한 것은 투자 순위가 아니라 현장 조사 누락 방지일 수 있다.",
+      "response": "조사 shortlist를 현재 범위로 두고 기존 시트를 baseline으로 유지한다.",
+      "residualRisk": "실제 기획자 관찰이 없어 새 문서/화면이 추가 업무가 될 가능성은 남는다."
+    },
+    {
+      "lens": "자료/재무 관점",
+      "challenge": "공급 위치만으로 수요나 수익을 추정하면 비용 큰 잘못된 투자로 이어진다.",
+      "response": "수요/비용/계통을 미확인으로 남기고 투자 승인 gate를 닫아 둔다.",
+      "residualRisk": "자료 취득 자체의 시간/비용과 대표성을 아직 추정할 근거가 부족하다."
+    },
+    {
+      "lens": "기술/운영 관점",
+      "challenge": "SQL로 충분한지 조합 solver가 필요한지 지금 확정할 수 없다.",
+      "response": "현재 조사와 미래 조합 투자 결정을 분리하고 규모/자료 확보 시 방법을 재선택한다.",
+      "residualRisk": "실제 후보/권역 규모와 갱신 빈도, 운영 소유자가 확인되지 않았다."
+    },
+    {
+      "lens": "권한/보안 관점",
+      "challenge": "공개 공급 데이터와 비공개 견적/토지/계통 정보가 한 결과로 섞일 수 있다.",
+      "response": "자료 scope/출처/권한을 분리하고 승인된 담당자만 상세 근거를 조회하게 설계한다.",
+      "residualRisk": "실제 조직/IdP/자료 제공계약을 검토하지 않았으므로 구현 전 재검토가 필요하다."
+    }
+  ]
+}

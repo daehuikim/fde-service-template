@@ -216,5 +216,37 @@
       "externalTransfer": false,
       "status": "proposed"
     }
+  ],
+  "designWorkflow": [
+    {
+      "id": "design-problem",
+      "title": "문제 · 현재 업무",
+      "detail": "누가 어떤 결정을 바꾸는가",
+      "path": "docs/problem-brief.md"
+    },
+    {
+      "id": "design-evidence",
+      "title": "자료 · 불확실성",
+      "detail": "관측 / 업체주장 / 가정 구분",
+      "path": "designs"
+    },
+    {
+      "id": "design-methods",
+      "title": "서로 다른 대안",
+      "detail": "시트 · SQL · 모델 · 사람",
+      "path": "docs/design-playbook.md"
+    },
+    {
+      "id": "design-choice",
+      "title": "선택 · 변경 조건",
+      "detail": "적합 / 실패 조건 · 기각 이유",
+      "path": "packages/contracts/design.schema.json"
+    },
+    {
+      "id": "design-handoff",
+      "title": "설계 · 검증 인계",
+      "detail": "계약 · 오류 · 배포 · 운영",
+      "path": "scripts/design-check.mjs"
+    }
   ]
 }

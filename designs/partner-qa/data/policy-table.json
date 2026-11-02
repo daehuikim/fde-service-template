@@ -1,0 +1,58 @@
+{
+  "kind": "synthetic",
+  "notRealComplianceGuidance": true,
+  "policies": [
+    {
+      "id": "a-current",
+      "partner": "a",
+      "category": "textile-demo",
+      "validThrough": "2026-12-31",
+      "requires": [
+        "demo-report",
+        "demo-label-photo"
+      ],
+      "audience": "partner"
+    },
+    {
+      "id": "b-internal",
+      "partner": "b",
+      "category": "textile-demo",
+      "validThrough": "2026-12-31",
+      "requires": [
+        "internal-review-note"
+      ],
+      "audience": "staff"
+    },
+    {
+      "id": "a-expired",
+      "partner": "a",
+      "category": "electronics-demo",
+      "validThrough": "2025-12-31",
+      "requires": [
+        "old-demo-report"
+      ],
+      "audience": "partner"
+    },
+    {
+      "id": "a-conflicting",
+      "partner": "a",
+      "category": "conflict-demo",
+      "validThrough": "2026-12-31",
+      "requires": [
+        "inconsistent-demo-report"
+      ],
+      "audience": "partner"
+    },
+    {
+      "id": "a-conflicting-two",
+      "partner": "a",
+      "category": "conflict-demo",
+      "validThrough": "2026-12-31",
+      "requires": [
+        "different-demo-requirement"
+      ],
+      "audience": "partner"
+    }
+  ],
+  "purpose": "review access/freshness/conflict/handoff design; no real QA policy or LLM answer is evaluated"
+}

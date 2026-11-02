@@ -22,7 +22,11 @@
     "contracts": "node scripts/contracts.mjs",
     "toolkit:doctor": "node scripts/toolkit.mjs doctor",
     "test:security": "node scripts/semgrep.mjs",
-    "test:live-smoke": "node qa/live-smoke.mjs"
+    "test:live-smoke": "node qa/live-smoke.mjs",
+    "design:start": "node scripts/design-start.mjs",
+    "design:check": "node scripts/design-check.mjs",
+    "design:eval": "node scripts/design-eval.mjs",
+    "brief": "node scripts/brief.mjs"
   },
   "dependencies": {
     "ajv": "8.20.0",

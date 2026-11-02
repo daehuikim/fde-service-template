@@ -1,0 +1,111 @@
+{
+  "source": "https://developer.nlr.gov/api/alt-fuel-stations/v1.json",
+  "query": {
+    "fuel_type": "ELEC",
+    "state": "CA",
+    "status": "E",
+    "access": "public",
+    "limit": 8
+  },
+  "fetchedAt": "2026-11-02",
+  "scope": "first 8 records; not a representative sample",
+  "dataTerms": "https://afdc.energy.gov/data_download#terms",
+  "records": [
+    {
+      "id": 1523,
+      "station_name": "Los Angeles Convention Center",
+      "latitude": 34.040539,
+      "longitude": -118.271387,
+      "state": "CA",
+      "city": "Los Angeles",
+      "access_code": "public",
+      "status_code": "E",
+      "date_last_confirmed": "2025-12-12",
+      "updated_at": "2026-02-02T23:16:24Z"
+    },
+    {
+      "id": 6355,
+      "station_name": "Scripps Green Hospital",
+      "latitude": 32.89947,
+      "longitude": -117.243,
+      "state": "CA",
+      "city": "La Jolla",
+      "access_code": "public",
+      "status_code": "E",
+      "date_last_confirmed": "2026-07-15",
+      "updated_at": "2026-07-15T18:43:06Z"
+    },
+    {
+      "id": 6405,
+      "station_name": "Galpin Motors",
+      "latitude": 34.221665,
+      "longitude": -118.468371,
+      "state": "CA",
+      "city": "Sepulveda",
+      "access_code": "public",
+      "status_code": "E",
+      "date_last_confirmed": "2025-06-06",
+      "updated_at": "2026-02-02T23:16:24Z"
+    },
+    {
+      "id": 6425,
+      "station_name": "Galleria at Tyler",
+      "latitude": 33.909914,
+      "longitude": -117.459053,
+      "state": "CA",
+      "city": "Riverside",
+      "access_code": "public",
+      "status_code": "E",
+      "date_last_confirmed": "2026-09-14",
+      "updated_at": "2026-09-14T19:22:06Z"
+    },
+    {
+      "id": 6505,
+      "station_name": "City of Pasadena - Holly Street Garage",
+      "latitude": 34.14762,
+      "longitude": -118.147111,
+      "state": "CA",
+      "city": "Pasadena",
+      "access_code": "public",
+      "status_code": "E",
+      "date_last_confirmed": "2025-06-06",
+      "updated_at": "2026-05-11T13:12:34Z"
+    },
+    {
+      "id": 6506,
+      "station_name": "City of Pasadena - De Lacey Garage",
+      "latitude": 34.145138,
+      "longitude": -118.152655,
+      "state": "CA",
+      "city": "Pasadena",
+      "access_code": "public",
+      "status_code": "E",
+      "date_last_confirmed": "2025-06-06",
+      "updated_at": "2026-05-11T13:12:34Z"
+    },
+    {
+      "id": 6507,
+      "station_name": "City of Pasadena - Schoolhouse Garage",
+      "latitude": 34.145119,
+      "longitude": -118.150133,
+      "state": "CA",
+      "city": "Pasadena",
+      "access_code": "public",
+      "status_code": "E",
+      "date_last_confirmed": "2025-06-06",
+      "updated_at": "2026-05-11T13:12:34Z"
+    },
+    {
+      "id": 7172,
+      "station_name": "Hyatt Regency Long Beach",
+      "latitude": 33.7637,
+      "longitude": -118.192,
+      "state": "CA",
+      "city": "Long Beach",
+      "access_code": "public",
+      "status_code": "E",
+      "date_last_confirmed": "2025-06-06",
+      "updated_at": "2026-02-02T23:16:24Z"
+    }
+  ]
+}

@@ -1,3 +1,11 @@
+# 새 현장 문제는 설계부터
+
+긴 설계 문서를 기다리지 말고 7항목의 짧은 검토 초안부터 제시한다. 본문900자 이내를 목표로 하고 미확인/가설/가장 강한 반론을 숨기지 않는다.
+
+새 산업/업무 문제를 받으면 `.agents/skills/fde-problem-design/SKILL.md`와 `docs/design-playbook.md`를 먼저 읽고 적용한다. 사용자가 구현을 요청하지 않았다면 설계에서 멈춘다. 이 repo의 Next.js/CSV 코드는 실행 예제이며 새 문제의 기술 선택이 아니다. ontology/LLM/RAG/최적화/특정 framework를 출발 조건으로 강제하지 않는다.
+
+현재 방식과 개발하지 않는 대안을 포함해 실제로 다른 방법을 비교한다. 데이터가 없는 결론을 채우지 말고 가정/추가 조사/보류를 명시한다. `pnpm design:start <id>`로 문제별 기록을 만들 수 있다. `design:check`의 pass는 구조/traceability만 의미하며 방법 적합성/현장 가치/실행 승인을 의미하지 않는다. 결과는 문제·근거·대안·선택/기각·변경 조건·검증 계획·운영 경계까지 인계한다.
+
 # Project rules
 
 이 저장소는 현장 업무를 웹서비스로 구현하기 위한 템플릿이다. README와 docs/problem-brief.md를 먼저 읽는다. 기본 policy는 config/policy.json의 restricted-assignment다.

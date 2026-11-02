@@ -1,0 +1,26 @@
+{
+  "recordCount": 8,
+  "coordinatesPresent": 8,
+  "confirmationAgesDays": [
+    325,
+    110,
+    514,
+    49,
+    514,
+    514,
+    514,
+    514
+  ],
+  "olderThan90Days": 7,
+  "missingDecisionInputs": [
+    "candidate land rights",
+    "construction cost and range",
+    "utility/grid capacity",
+    "observed charging demand",
+    "planned location certainty",
+    "revenue/tariff/operating cost"
+  ],
+  "conclusion": "sufficient for source/freshness inspection; insufficient for an investment recommendation",
+  "thresholdNote": "90 days is an illustrative review policy, not a universal data quality standard",
+  "asOf": "2026-11-02"
+}

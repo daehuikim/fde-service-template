@@ -30,3 +30,7 @@ stack-diagram은 로컬 정책에 맞게 SKILL.md를 대체했고, build.py/geom
 ## 런타임/개발 의존성
 
 Next.js/React/csv-parse/AJV/Postgres.js/TypeScript/tsx/Vitest 등은 pnpm-lock.yaml에 정확한 version과 integrity를 기록합니다. package manager 설치 후 각 패키지 LICENSE를 확인할 수 있습니다. node_modules를 저장소에 재배포하지 않습니다. 선택 MCP는 config/tools.manifest.json의 root version만 고정하며 아직 설치/인증/연결 검증하지 않았습니다.
+
+## 현장 설계 검증 자료
+
+`designs/ev-siting/data/public-stations.json`은 공식 NLR/AFDC API의 공개 공급 위치8건을 선택한 snapshot입니다. [공개 데이터 이용 조건](https://afdc.energy.gov/data_download)을 적용하며 비후원/비보증/책임 조항을 확인합니다. 기관이 이 프로젝트를 후원한다는 표현을 하지 않습니다. 수요/비용/정책 mock과 자체 설계 문서는 자체 작성입니다. Palantir/Sendbird/Anthropic 원문·사진·로고는 재배포하지 않고 source 링크와 제한된 요약만 보존합니다.

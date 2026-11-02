@@ -1,0 +1,71 @@
+{
+  "kind": "synthetic",
+  "unit": "arbitrary budget units / demand proxy; not USD or revenue",
+  "budget": 9,
+  "zones": {
+    "c": 80,
+    "d": 70,
+    "e": 60,
+    "f": 40
+  },
+  "candidates": [
+    {
+      "id": "hub",
+      "cost": 6,
+      "covers": [
+        "c",
+        "d",
+        "e"
+      ],
+      "eligible": true,
+      "costHigh": 8
+    },
+    {
+      "id": "south",
+      "cost": 5,
+      "covers": [
+        "d",
+        "e"
+      ],
+      "eligible": true,
+      "costHigh": 6
+    },
+    {
+      "id": "east",
+      "cost": 4,
+      "covers": [
+        "c",
+        "f"
+      ],
+      "eligible": true,
+      "costHigh": 5
+    },
+    {
+      "id": "cheap-unknown",
+      "cost": 1,
+      "covers": [
+        "c",
+        "d",
+        "e",
+        "f"
+      ],
+      "eligible": null,
+      "costHigh": 1
+    }
+  ],
+  "expected": {
+    "individualRatioGreedy": [
+      "hub"
+    ],
+    "greedyCoverage": 210,
+    "feasibleCombination": [
+      "south",
+      "east"
+    ],
+    "combinationCoverage": 250,
+    "unknownCandidate": "investigate, do not approve",
+    "combinationWorstCaseCost": 11,
+    "worstCaseBudgetFeasible": false
+  },
+  "purpose": "counterexample: sorting individual site scores is not equivalent to budgeted overlapping coverage"
+}

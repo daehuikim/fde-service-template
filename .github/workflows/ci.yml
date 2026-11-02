@@ -15,6 +15,7 @@ jobs:
       - run: pnpm setup:tools --profile restricted-assignment
       - run: pnpm qa
       - run: pnpm eval:fixture
+      - run: pnpm design:eval
   database:
     runs-on: ubuntu-latest
     services:

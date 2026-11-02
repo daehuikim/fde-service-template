@@ -14,5 +14,8 @@
       "schema_error",
       "budget_exceeded"
     ]
-  }
+  },
+  "publicResearchAllowed": true,
+  "customerDataTransferAllowed": false,
+  "defaultWorkScope": "problem analysis and design; implementation only when requested"
 }

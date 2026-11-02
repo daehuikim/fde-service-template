@@ -1,0 +1,20 @@
+import {it,expect} from 'vitest';
+import {readFileSync} from 'node:fs';
+import {checkDesign} from '../scripts/design-check.mjs';
+const load=()=>JSON.parse(readFileSync('designs/ev-siting/design.json','utf8'));
+it('accepts the two structurally complete design packs',()=>{for(const id of ['ev-siting','partner-qa'])expect(checkDesign(JSON.parse(readFileSync(`designs/${id}/design.json`,'utf8'))).status).toBe('pass');});
+it('rejects an incomplete draft instead of granting readiness',()=>{const p=load();p.stage='draft';expect(checkDesign(p).errors).toContain('draft_not_review_ready');});
+it('rejects dangling source evidence',()=>{const p=load();p.requirements[0].sourceIds=['invented'];expect(checkDesign(p).errors).toContain('unknown_source:invented');});
+it('rejects dangling failure scenarios',()=>{const p=load();p.requirements[0].scenarioIds=['invented'];expect(checkDesign(p).errors).toContain('unknown_scenario:invented');});
+it('rejects invented method references',()=>{const p=load();p.scenarios[0].alternativeIds=['invented'];expect(checkDesign(p).errors).toContain('unknown_alternative:invented');});
+it('rejects duplicate IDs across evidence and scenarios',()=>{const p=load();p.scenarios[0].id=p.sources[0].id;expect(checkDesign(p).errors.some(e=>e.startsWith('duplicate_id:'))).toBe(true);});
+it('rejects turning vendor and mock facts into verified outcomes',()=>{const p=load();p.claims[0].kind='empirical_outcome';expect(checkDesign(p).errors).toContain('unsupported_empirical_claim:'+p.claims[0].id);});
+it('rejects a comparison with no explicit selected method',()=>{const p=load();p.alternatives.forEach((a:{disposition:string})=>a.disposition='rejected');expect(checkDesign(p).errors).toContain('no_selected_approach');});
+it('rejects duplicate mechanisms disguised as alternatives',()=>{const p=load();p.alternatives[1].mechanism=p.alternatives[0].mechanism;expect(checkDesign(p).errors).toContain('duplicate_alternative_mechanism');});
+it('rejects pretending a design-only document authorizes execution',()=>{const p=load();p.executionAllowed=true;expect(checkDesign(p).status).toBe('fail');});
+it('does not require ontology, LLM, a web framework or a specific architecture',()=>{const p=load();p.alternatives=p.alternatives.filter((a:{id:string})=>!['semantic-ontology','demand-forecast'].includes(a.id));p.scenarios=p.scenarios.filter((s:{id:string})=>!['ev-reuse'].includes(s.id));p.requirements=p.requirements.filter((r:{id:string})=>r.id!=='ev-r-method');expect(checkDesign(p).status).toBe('pass');});
+
+import {renderBrief} from '../scripts/brief.mjs';
+it('keeps the brief useful before the full design pack is complete',()=>{const p=load();expect(renderBrief({id:p.id,brief:p.brief}).characters).toBeLessThanOrEqual(900);});
+it('rejects a quick brief that hides the strongest counterargument',()=>{const p=load();delete p.brief.weaknessCounterargument;expect(()=>renderBrief(p)).toThrow('brief_missing_weaknessCounterargument');});
+it('rejects an excessively long quick brief and a one-angle critique',()=>{const p=load();p.brief.background='가'.repeat(1000);expect(()=>renderBrief(p)).toThrow('brief_too_long');p.brief=load().brief;p.critiques=p.critiques.map((c:{lens:string})=>({...c,lens:'one perspective'}));expect(checkDesign(p).errors).toContain('insufficient_critique_lenses');});
