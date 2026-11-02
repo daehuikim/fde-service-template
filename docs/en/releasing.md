@@ -35,7 +35,9 @@ The workflow `publish-pypi.yml` is manual and uses a `pypi` GitHub environment p
 2. Create the `pypi` environment with appropriate maintainer/release restrictions.
 3. Dispatch the workflow with the already-reviewed release tag. The workflow verifies the tag against the package version, runs tests and isolated installation, builds, then publishes.
 
-This configuration is not a claim that the package is already on PyPI. No PyPI upload is performed by ordinary CI, local builds or `fde` commands. [Official trusted-publishing guide](https://docs.pypi.org/trusted-publishers/)
+Version [0.2.0 is published on PyPI](https://pypi.org/project/fde-workbench/0.2.0/); [publishing run 41465806817, attempt 2](https://github.com/daehuikim/fde-service-template/actions/runs/41465806817/attempts/2) succeeded. A clean installation from the PyPI index passed `fde doctor`. No PyPI upload is performed by ordinary CI, local builds or `fde` commands. [Official trusted-publishing guide](https://docs.pypi.org/trusted-publishers/)
+
+The first attempt failed while creating a digital attestation: Rekor returned HTTP 502 before upload. Rerunning the failed job succeeded with the same publisher configuration and attestations enabled. For this error, inspect the upload state before retrying; a successful release must not be overwritten. Authentication or publisher-identity errors need their own diagnosis.
 
 ## Compatibility and rollback
 

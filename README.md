@@ -21,16 +21,16 @@ FDE Workbench pairs a portable agent skill with an offline Python CLI and librar
 
 ## Get started
 
-Install the versioned source with [uv](https://docs.astral.sh/uv/):
+Install the versioned package with [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uv tool install "git+https://github.com/daehuikim/fde-service-template.git@v0.2.0"
+uv tool install "fde-workbench==0.2.0"
 ```
 
 Or install with pip in your environment:
 
 ```sh
-pip install "git+https://github.com/daehuikim/fde-service-template.git@v0.2.0"
+pip install "fde-workbench==0.2.0"
 ```
 
 Try the complete synthetic example:
@@ -42,7 +42,7 @@ fde brief demo --lang en
 fde export demo --output review --lang en
 ```
 
-Open `review/REPORT.html`. Everything needed to read it is included. No Node, API key or model endpoint is needed for these commands. [Wheel, source archive and skill ZIP](https://github.com/daehuikim/fde-service-template/releases/tag/v0.2.0) are also available. The package is currently distributed through GitHub; PyPI publication is configured separately.
+Open `review/REPORT.html`. Everything needed to read it is included. No Node, API key or model endpoint is needed for these commands. [Wheel, source archive and skill ZIP](https://github.com/daehuikim/fde-service-template/releases/tag/v0.2.0) are also available. Version 0.2.0 is published on [PyPI](https://pypi.org/project/fde-workbench/0.2.0/).
 
 ## A short draft first. A deeper design behind it.
 
@@ -103,6 +103,6 @@ uv build
 uv run twine check dist/*
 ```
 
-Python CI tests installation and CLI behavior on Linux, macOS and Windows. The release workflow builds wheel/sdist and a versioned skill ZIP; [PyPI trusted publishing](docs/en/releasing.md) requires the repository owner to configure the publishing environment. The [optional Next.js/PostgreSQL example](docs/en/web-example.md) is separate from the Python package.
+Python CI tests installation and CLI behavior on Linux, macOS and Windows. The release workflow builds wheel/sdist and a versioned skill ZIP; [PyPI trusted publishing](docs/en/releasing.md) uses the configured repository environment and OIDC. The [optional Next.js/PostgreSQL example](docs/en/web-example.md) is separate from the Python package.
 
 [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [License](LICENSE) · [Reference review](docs/product/reference-review.md)

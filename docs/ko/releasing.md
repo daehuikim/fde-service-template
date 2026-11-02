@@ -23,7 +23,9 @@ GitHub CI는 Linux의 Python3.10–3.13, macOS/Windows의 Python3.12를 검사�
 
 `publish-pypi.yml`은 수동 실행이며 `pypi` environment와 OIDC trusted publisher를 사용합니다. 토큰을 저장소에 넣지 않습니다. 최초 게시는 소유자가 PyPI 배포명/신뢰할 GitHub publisher와 environment를 연결해야 합니다. 이후 검토된 tag로 실행하면 버전 일치·테스트·독립 설치·빌드를 거쳐 업로드합니다. 일반 CI나 `fde` 명령은 PyPI에 게시하지 않습니다.
 
-이 설정이 PyPI에 이미 게시되었다는 뜻은 아닙니다. [공식 가이드](https://docs.pypi.org/trusted-publishers/)
+[0.2.0은 PyPI에 게시되었습니다](https://pypi.org/project/fde-workbench/0.2.0/). [배포 실행 41465806817의 두 번째 시도](https://github.com/daehuikim/fde-service-template/actions/runs/41465806817/attempts/2)가 성공했고, PyPI에서 새 환경에 설치한 뒤 `fde doctor` 통과를 확인했습니다. [공식 가이드](https://docs.pypi.org/trusted-publishers/)
+
+첫 시도는 업로드 전 디지털 서명 생성 중 Rekor의 HTTP 502로 실패했습니다. publisher 설정과 서명을 유지한 채 실패한 job을 재실행해 성공했습니다. 같은 오류라면 업로드 여부를 먼저 확인하고 재시도합니다. 성공한 배포물을 덮어쓰지 않습니다. 인증·publisher 정보 오류는 별도로 원인을 확인합니다.
 
 ## 업그레이드와 한계
 

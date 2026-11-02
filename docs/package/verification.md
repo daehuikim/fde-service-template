@@ -17,9 +17,11 @@ Date: 2026-11-02 (Asia/Seoul). Package code tested at `d31a2bc`; subsequent chan
 | Product figures | pass | SVG → native resvg PNG; both hero and architecture PNGs visually inspected |
 | README/guide links | pass | 11 bilingual/package documents; 55 local links at final documentation review |
 | Secrets | pass | Staged and Git-history gitleaks checks; no leaks found |
-| PyPI upload / trusted publisher | not_run | Owner-side PyPI/environment configuration required; no upload performed |
+| PyPI upload / trusted publisher | pass | Run 41465806817, attempt 2; version 0.2.0 wheel/sdist published with attestations; clean PyPI-index install passed `fde doctor` |
 | HTML report browser visual/accessibility review | not_run | Escaping/offline structure tested; browser automation not used |
 | Independent field/user validation | not_run | Package/review tooling checks do not establish method superiority or business effectiveness |
+
+PyPI publishing: [successful attempt 2](https://github.com/daehuikim/fde-service-template/actions/runs/41465806817/attempts/2). Attempt 1 failed before upload because Rekor returned HTTP 502; no publisher configuration or attestation setting was changed.
 
 Package CI: [run 41461307351](https://github.com/daehuikim/fde-service-template/actions/runs/41461307351). Existing core/DB CI: [run 41461307092](https://github.com/daehuikim/fde-service-template/actions/runs/41461307092).
 

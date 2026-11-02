@@ -24,13 +24,13 @@ FDE Workbench는 설치형 agent skill과 오프라인 Python CLI·라이브러�
 [uv](https://docs.astral.sh/uv/)로 버전을 고정해 설치합니다.
 
 ```sh
-uv tool install "git+https://github.com/daehuikim/fde-service-template.git@v0.2.0"
+uv tool install "fde-workbench==0.2.0"
 ```
 
 또는 사용 중인 Python 환경에 pip로 설치합니다.
 
 ```sh
-pip install "git+https://github.com/daehuikim/fde-service-template.git@v0.2.0"
+pip install "fde-workbench==0.2.0"
 ```
 
 완성된 합성 예제를 실행해 보세요.
@@ -42,7 +42,7 @@ fde brief demo --lang ko
 fde export demo --output review --lang ko
 ```
 
-`review/REPORT.html`을 열면 근거·대안·비판이 포함된 보고서를 읽을 수 있습니다. 위 명령에는 Node·API key·모델 endpoint가 필요하지 않습니다. [wheel·소스 배포본·skill ZIP](https://github.com/daehuikim/fde-service-template/releases/tag/v0.2.0)으로도 설치할 수 있습니다. 현재 배포 채널은 GitHub이며 PyPI 게시는 별도 설정 대상입니다.
+`review/REPORT.html`을 열면 근거·대안·비판이 포함된 보고서를 읽을 수 있습니다. 위 명령에는 Node·API key·모델 endpoint가 필요하지 않습니다. [wheel·소스 배포본·skill ZIP](https://github.com/daehuikim/fde-service-template/releases/tag/v0.2.0)으로도 설치할 수 있습니다. 0.2.0은 [PyPI](https://pypi.org/project/fde-workbench/0.2.0/)에 게시되어 있습니다.
 
 ## 짧은 초안부터, 필요한 만큼 깊게
 
@@ -103,6 +103,6 @@ uv build
 uv run twine check dist/*
 ```
 
-Python CI는 Linux·macOS·Windows에서 설치와 CLI 동작을 검사합니다. 릴리스 절차는 wheel·sdist·버전이 고정된 skill ZIP을 만듭니다. [PyPI trusted publishing](docs/ko/releasing.md)은 소유자의 배포 환경 연결이 필요합니다. [선택형 웹서비스 예제](docs/en/web-example.md)는 Python 코어와 별도로 사용할 수 있습니다.
+Python CI는 Linux·macOS·Windows에서 설치와 CLI 동작을 검사합니다. 릴리스 절차는 wheel·sdist·버전이 고정된 skill ZIP을 만듭니다. [PyPI trusted publishing](docs/ko/releasing.md)은 연결된 배포 환경과 OIDC를 사용합니다. [선택형 웹서비스 예제](docs/en/web-example.md)는 Python 코어와 별도로 사용할 수 있습니다.
 
 [변경 기록](CHANGELOG.md) · [기여](CONTRIBUTING.md) · [보안](SECURITY.md) · [라이선스](LICENSE) · [레퍼런스 검토](docs/product/reference-review.md)
