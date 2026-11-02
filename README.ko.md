@@ -107,6 +107,20 @@ if result.status == "pass":
 
 `fde bundle demo --output handoff.zip`은 같은 설계를 다른 팀에 인계할 수 있는 ZIP을 만듭니다. 설계·초안·보고서·검사 결과·SHA-256 manifest가 포함됩니다. [API와 종료 코드](docs/ko/api.md)
 
+## 사용 사례
+
+FDE Workbench를 잘 활용한 사례를 [쇼케이스 리더보드](SHOWCASE.md)에 모읍니다. 파일 하나를 PR로 올리면 등록됩니다.
+
+<!-- showcase:start -->
+| 사례 | 분야 | 근거 수준 | 작성자 |
+|---|---|---|---|
+| [EV 충전소 입지 검토](https://github.com/daehuikim/fde-service-template/tree/main/designs/ev-siting) — 공개 AFDC 충전소 스냅샷과 수치 반례로, 투자 최적화보다 자료 정합성 확인과 조사 shortlist가 먼저임을 보인 설계입니다. | energy | 설계 검토 | [@daehuikim](https://github.com/daehuikim) |
+| [파트너 QA 지원 설계](https://github.com/daehuikim/fde-service-template/tree/main/designs/partner-qa) — 승인된 FAQ와 권한 필터 검색, 결정적 정책 체크를 baseline으로 두고, 근거가 생길 때만 인용 있는 LLM 초안을 비교하는 설계입니다. | partner-operations | 설계 검토 | [@daehuikim](https://github.com/daehuikim) |
+| [유지보수 요청 분류](https://github.com/daehuikim/fde-service-template/blob/main/src/fde_workbench/resources/examples/support-triage.en.json) — 기본 내장 예제입니다. 안전 판단은 자동화하지 않고 유지보수 요청을 명확한 담당자에게 배정합니다. fde example support-triage로 실행합니다. | customer-support | 합성 예제 | [@daehuikim](https://github.com/daehuikim) |
+
+[전체 3건 보기](SHOWCASE.md) · [사례 추가하기](showcase/README.md)
+<!-- showcase:end -->
+
 ## 검증과 릴리스
 
 ```sh
@@ -119,4 +133,4 @@ uv run twine check dist/*
 
 Python CI는 Linux·macOS·Windows에서 설치와 CLI 동작을 검사합니다. 릴리스 절차는 wheel·sdist·버전이 고정된 skill ZIP을 만듭니다. [PyPI trusted publishing](docs/ko/releasing.md)은 연결된 배포 환경과 OIDC를 사용합니다. [선택형 웹서비스 예제](docs/en/web-example.md)는 Python 코어와 별도로 사용할 수 있습니다.
 
-[변경 기록](CHANGELOG.md) · [기여](CONTRIBUTING.md) · [보안](SECURITY.md) · [라이선스](LICENSE) · [레퍼런스 검토](docs/product/reference-review.md)
+[변경 기록](CHANGELOG.md) · [기여](CONTRIBUTING.ko.md) · [운영 원칙](GOVERNANCE.md) · [행동 강령](CODE_OF_CONDUCT.md) · [사용 사례](SHOWCASE.md) · [보안](SECURITY.md) · [라이선스](LICENSE) · [레퍼런스 검토](docs/product/reference-review.md)

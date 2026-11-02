@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add open-source collaboration rules: governance and maintainer roles, Code of Conduct, bilingual contributing guide, CODEOWNERS, issue forms and an updated PR template.
+- Add a `main` branch ruleset (`.github/rulesets/main.json`) and a repository-settings record for maintainers.
+- Add a showcase: one JSON file per case in `showcase/entries`, rendered into `SHOWCASE.md` and the README by `scripts/showcase.mjs`, validated in CI by the `showcase` job.
 - Add review lenses to the portable skill: feature teardown, compatibility and deployment scalability, validation method, target-environment fit, field debugging, security/data boundary and cost model.
 - Add matching project skills (`fde-feature-teardown`, `fde-compat-scale-review`, `fde-validation-review`, `fde-target-env`, `fde-field-debug`, `fde-security-review`, `fde-cost-model`) and a skill catalog.
 - Add a read-only POSIX environment probe and an OS/runtime compatibility matrix for customer deployments.

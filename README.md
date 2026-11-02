@@ -107,6 +107,20 @@ if result.status == "pass":
 
 Use `fde bundle demo --output handoff.zip` to hand the same design to another team. The bundle includes the design, brief, report, check results and SHA-256 manifest. [API reference and exit codes](docs/en/api.md)
 
+## Showcase
+
+Good uses of FDE Workbench, ranked on the [showcase leaderboard](SHOWCASE.md). Add yours with a one-file pull request.
+
+<!-- showcase:start -->
+| Case | Domain | Evidence | Authors |
+|---|---|---|---|
+| [EV charging site screening](https://github.com/daehuikim/fde-service-template/tree/main/designs/ev-siting) — Shows why data reconciliation and a survey shortlist come before an investment optimizer, using a public AFDC station snapshot and a numeric counterexample. | energy | Desk review | [@daehuikim](https://github.com/daehuikim) |
+| [Partner policy Q&A support](https://github.com/daehuikim/fde-service-template/tree/main/designs/partner-qa) — Starts from approved FAQs with permission-filtered search and deterministic policy checks; adds cited LLM drafts only if the baseline fails. | partner-operations | Desk review | [@daehuikim](https://github.com/daehuikim) |
+| [Maintenance request triage](https://github.com/daehuikim/fde-service-template/blob/main/src/fde_workbench/resources/examples/support-triage.en.json) — The bundled example: route maintenance requests to clear owners without automating safety decisions. Run it with fde example support-triage. | customer-support | Synthetic | [@daehuikim](https://github.com/daehuikim) |
+
+[See all 3](SHOWCASE.md) · [Add yours](showcase/README.md)
+<!-- showcase:end -->
+
 ## Build, test and release
 
 ```sh
@@ -119,4 +133,4 @@ uv run twine check dist/*
 
 Python CI tests installation and CLI behavior on Linux, macOS and Windows. The release workflow builds wheel/sdist and a versioned skill ZIP; [PyPI trusted publishing](docs/en/releasing.md) uses the configured repository environment and OIDC. The [optional Next.js/PostgreSQL example](docs/en/web-example.md) is separate from the Python package.
 
-[Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [License](LICENSE) · [Reference review](docs/product/reference-review.md)
+[Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Governance](GOVERNANCE.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Showcase](SHOWCASE.md) · [Security](SECURITY.md) · [License](LICENSE) · [Reference review](docs/product/reference-review.md)

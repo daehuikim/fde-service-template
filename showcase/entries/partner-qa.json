@@ -1,0 +1,14 @@
+{
+  "id": "partner-qa",
+  "title": "Partner policy Q&A support",
+  "title_ko": "파트너 QA 지원 설계",
+  "summary": "Starts from approved FAQs with permission-filtered search and deterministic policy checks; adds cited LLM drafts only if the baseline fails.",
+  "summary_ko": "승인된 FAQ와 권한 필터 검색, 결정적 정책 체크를 baseline으로 두고, 근거가 생길 때만 인용 있는 LLM 초안을 비교하는 설계입니다.",
+  "url": "https://github.com/daehuikim/fde-service-template/tree/main/designs/partner-qa",
+  "authors": ["daehuikim"],
+  "date": "2026-11-02",
+  "domain": "partner-operations",
+  "evidence": "desk-review",
+  "skills": ["fde-workbench"],
+  "language": "ko"
+}
