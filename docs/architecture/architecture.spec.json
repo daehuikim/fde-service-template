@@ -248,5 +248,75 @@
       "detail": "계약 · 오류 · 배포 · 운영",
       "path": "scripts/design-check.mjs"
     }
-  ]
+  ],
+  "scope": "Optional web example plus product distribution specification",
+  "productArchitecture": {
+    "name": "FDE Workbench",
+    "version": "0.2.0",
+    "networkCallsFromCore": false,
+    "components": [
+      {
+        "id": "host-skill",
+        "path": "src/fde_workbench/resources/skill",
+        "role": "Host-guided research, comparison and critique"
+      },
+      {
+        "id": "python-core",
+        "path": "src/fde_workbench/core.py",
+        "role": "Schema and traceability checks, bilingual briefs"
+      },
+      {
+        "id": "delivery",
+        "path": "src/fde_workbench/delivery.py",
+        "role": "Offline reports, bundles and skill distribution"
+      },
+      {
+        "id": "cli",
+        "path": "src/fde_workbench/cli.py",
+        "role": "Installed fde entrypoint"
+      },
+      {
+        "id": "python-dist",
+        "path": "pyproject.toml",
+        "role": "Wheel and sdist build metadata"
+      },
+      {
+        "id": "package-ci",
+        "path": ".github/workflows/python.yml",
+        "role": "OS/Python test and isolated installation matrix"
+      },
+      {
+        "id": "publisher",
+        "path": ".github/workflows/publish-pypi.yml",
+        "role": "Manual, environment-gated OIDC publishing"
+      }
+    ],
+    "connections": [
+      {
+        "from": "host-skill",
+        "to": "cli",
+        "protocol": "local CLI / design.json"
+      },
+      {
+        "from": "cli",
+        "to": "python-core",
+        "protocol": "Python function calls"
+      },
+      {
+        "from": "python-core",
+        "to": "delivery",
+        "protocol": "validated design record"
+      },
+      {
+        "from": "package-ci",
+        "to": "python-dist",
+        "protocol": "uv build / isolated wheel install"
+      },
+      {
+        "from": "publisher",
+        "to": "python-dist",
+        "protocol": "reviewed tag / OIDC upload"
+      }
+    ]
+  }
 }

@@ -8,7 +8,7 @@
     "build": "pnpm --filter @fde/web build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "qa": "node scripts/check-tools.mjs && node scripts/contracts.mjs --check && pnpm typecheck && pnpm test && pnpm diagram:check && pnpm build",
+    "qa": "node scripts/check-tools.mjs && node scripts/contracts.mjs --check && pnpm docs:check && pnpm typecheck && pnpm test && pnpm diagram:check && pnpm assets:check && pnpm build",
     "eval:fixture": "node --import tsx packages/evaluation/run.ts",
     "diagram": "node scripts/diagram.mjs",
     "diagram:check": "node scripts/diagram.mjs --check",
@@ -26,7 +26,10 @@
     "design:start": "node scripts/design-start.mjs",
     "design:check": "node scripts/design-check.mjs",
     "design:eval": "node scripts/design-eval.mjs",
-    "brief": "node scripts/brief.mjs"
+    "brief": "node scripts/brief.mjs",
+    "assets": "node scripts/brand-assets.mjs",
+    "assets:check": "node scripts/brand-assets.mjs --check",
+    "docs:check": "node scripts/docs-check.mjs"
   },
   "dependencies": {
     "ajv": "8.20.0",
@@ -34,11 +37,12 @@
     "postgres": "3.4.8"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@types/node": "22.19.7",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "typescript": "5.9.3",
     "tsx": "4.21.0",
+    "typescript": "5.9.3",
     "vitest": "4.0.18"
   },
   "type": "module"

@@ -34,3 +34,7 @@ Next.js/React/csv-parse/AJV/Postgres.js/TypeScript/tsx/Vitest 등은 pnpm-lock.y
 ## 현장 설계 검증 자료
 
 `designs/ev-siting/data/public-stations.json`은 공식 NLR/AFDC API의 공개 공급 위치8건을 선택한 snapshot입니다. [공개 데이터 이용 조건](https://afdc.energy.gov/data_download)을 적용하며 비후원/비보증/책임 조항을 확인합니다. 기관이 이 프로젝트를 후원한다는 표현을 하지 않습니다. 수요/비용/정책 mock과 자체 설계 문서는 자체 작성입니다. Palantir/Sendbird/Anthropic 원문·사진·로고는 재배포하지 않고 source 링크와 제한된 요약만 보존합니다.
+
+## FDE Workbench Python distribution
+
+The wheel/sdist and portable `fde-workbench` skill include this project's MIT code, contract, localized synthetic examples and first-party references. They do not include the web application, customer records or vendored third-party skills/fonts. Runtime `jsonschema` and its dependencies are declared separately; development dependencies and artifact integrity are pinned in uv.lock. The original product SVG/PNG artwork is generated locally; no reference-project logos, screenshots or code are redistributed. resvg is a development-only renderer (MPL-2.0); it is not a Python runtime dependency.

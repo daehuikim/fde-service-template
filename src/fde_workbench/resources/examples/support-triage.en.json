@@ -1,0 +1,174 @@
+{
+  "version": "1",
+  "id": "support-triage",
+  "stage": "review_ready",
+  "executionAllowed": false,
+  "brief": {
+    "background": "A small operations team must route maintenance requests.",
+    "painPoint": "Shared inboxes lose context and repeat the same handoffs.",
+    "valueHypothesis": "Make routing reasons and missing information visible. Value is unmeasured.",
+    "technicalCombination": "Start with a checklist, rules and owner lookup. Add no model by default.",
+    "scaleTrigger": "Test retrieval or a bounded LLM only if free-text ambiguity dominates.",
+    "weaknessCounterargument": "The sample is synthetic. A new tool may cost more effort than the inbox.",
+    "nextCheck": "Observe 20 anonymized requests against the current workflow before building."
+  },
+  "decisionOwner": "Operations coordinator and maintenance lead",
+  "problem": "Route maintenance requests with clear ownership without automating safety decisions.",
+  "currentWorkflow": "A shared inbox and spreadsheet are the assumed baseline; no real team has been observed.",
+  "decisionToSupport": "Suggest the responsible team and missing fields for human review.",
+  "nonGoals": [
+    "No automatic shutdown, repair approval, purchasing or external messages."
+  ],
+  "sources": [
+    {
+      "id": "sample-data",
+      "kind": "synthetic",
+      "url": "fixture://support-triage",
+      "checkedAt": "2026-11-02",
+      "supports": "An illustrative inbox with structured request types and ambiguous descriptions.",
+      "limits": "No customer observations, real policies or measured business outcomes."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req-owner",
+      "need": "Every suggestion needs an owner or an explicit handoff.",
+      "sourceIds": [
+        "sample-data"
+      ],
+      "acceptance": "Unknown owners are deferred rather than invented.",
+      "scenarioIds": [
+        "unknown-owner"
+      ]
+    },
+    {
+      "id": "req-boundary",
+      "need": "Suggestions must not execute maintenance actions.",
+      "sourceIds": [
+        "sample-data"
+      ],
+      "acceptance": "Safety and approval questions go to the maintenance lead.",
+      "scenarioIds": [
+        "unsafe-request"
+      ]
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "manual-desk",
+      "method": "Inbox and checklist",
+      "mechanism": "A coordinator reads requests and chooses an owner.",
+      "dataNeeded": "Current procedure and a maintained ownership list.",
+      "worksWhen": "Low volume and familiar request categories.",
+      "failsWhen": "Repeated handoffs become frequent or ownership is unclear.",
+      "costAndOperations": "No new service; requires coordinator attention.",
+      "disposition": "conditional",
+      "reason": "Retain as the observed baseline before adding software.",
+      "evidenceIds": [
+        "sample-data"
+      ]
+    },
+    {
+      "id": "rules-lookup",
+      "method": "Rules and owner lookup",
+      "mechanism": "Map structured request types to reviewed ownership rules.",
+      "dataNeeded": "Stable categories and a versioned owner mapping.",
+      "worksWhen": "Requests contain the necessary structured fields.",
+      "failsWhen": "Free-text ambiguity dominates or mappings drift.",
+      "costAndOperations": "Small local script or existing portal; maintain rules.",
+      "disposition": "selected",
+      "reason": "Provides explicit reasons without assuming an LLM is necessary.",
+      "evidenceIds": [
+        "sample-data"
+      ]
+    },
+    {
+      "id": "bounded-language",
+      "method": "Retrieval and bounded LLM",
+      "mechanism": "Retrieve reviewed procedures and draft a routing suggestion.",
+      "dataNeeded": "Representative requests, source policies and deferral labels.",
+      "worksWhen": "Observed ambiguity repeatedly defeats the simpler baseline.",
+      "failsWhen": "Source evidence is missing or model output is treated as authority.",
+      "costAndOperations": "Adds provider cost, latency and evaluation ownership.",
+      "disposition": "conditional",
+      "reason": "Evaluate only after showing a real gap in checklist and rules.",
+      "evidenceIds": [
+        "sample-data"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "routing-unknown",
+      "statement": "Most requests may be simple enough for a checklist.",
+      "impact": "If requests are mostly free text, fixed rules may miss important context.",
+      "verification": "Review anonymized requests with the current coordinator.",
+      "blocks": "execution"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "unknown-owner",
+      "trigger": "A request contains a new asset with no owner mapping.",
+      "expectedResponse": "Ask for the owner and retain the original request.",
+      "requiredDesignChange": "Separate unknown ownership from a negative eligibility decision.",
+      "alternativeIds": [
+        "rules-lookup"
+      ],
+      "evaluationMethod": "Design desk review only; no product execution is claimed."
+    },
+    {
+      "id": "unsafe-request",
+      "trigger": "An incoming description asks the system to shut equipment down.",
+      "expectedResponse": "Provide a human handoff; do not issue control commands.",
+      "requiredDesignChange": "Treat request text as data, not permission to execute actions.",
+      "alternativeIds": [
+        "rules-lookup",
+        "bounded-language"
+      ],
+      "evaluationMethod": "Design desk review of the permission and handoff boundary."
+    }
+  ],
+  "claims": [
+    {
+      "id": "value-claim",
+      "kind": "hypothesis",
+      "statement": "Clear routing evidence may reduce repeated handoffs.",
+      "sourceIds": [
+        "sample-data"
+      ],
+      "limit": "No real task completion, time saving or user preference has been measured."
+    }
+  ],
+  "deployment": {
+    "runtime": "A local file or existing portal is sufficient for the first study.",
+    "identityBoundary": "Only authenticated coordinators can propose routing changes.",
+    "dataBoundary": "Use anonymized requests; keep asset and customer details local.",
+    "capacityModel": "Measure request volume and operator wait before selecting a service runtime.",
+    "failureRecovery": "Retain original text and the last human owner on failures.",
+    "releaseRollback": "Version routing rules and restore the previous reviewed version.",
+    "observability": "Count deferrals and correction reasons without logging private text.",
+    "operatingOwner": "The maintenance lead owns policy changes and exception handling."
+  },
+  "nextValidation": "Compare checklist and rules on the same 20 anonymized requests with the coordinator.",
+  "critiques": [
+    {
+      "lens": "User adoption",
+      "challenge": "The inbox may already be sufficient for a small team.",
+      "response": "Keep the existing inbox as the baseline.",
+      "residualRisk": "A new workflow could add work instead of removing it."
+    },
+    {
+      "lens": "Data quality",
+      "challenge": "Asset ownership may be incomplete or out of date.",
+      "response": "Mark unknown owners and ask the policy owner to verify.",
+      "residualRisk": "Routing quality remains unmeasured without real requests."
+    },
+    {
+      "lens": "Operational safety",
+      "challenge": "A request could ask for a high-impact equipment action.",
+      "response": "Keep all control actions outside the assistant scope.",
+      "residualRisk": "Human procedures and actual system permissions still need review."
+    }
+  ]
+}

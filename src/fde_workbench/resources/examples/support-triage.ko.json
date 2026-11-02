@@ -1,0 +1,174 @@
+{
+  "version": "1",
+  "id": "support-triage",
+  "stage": "review_ready",
+  "executionAllowed": false,
+  "brief": {
+    "background": "소규모 운영팀이 정비 요청의 담당자와 우선순위를 정해야 합니다.",
+    "painPoint": "공용 메일함에서 맥락이 사라지고 같은 요청을 여러 번 전달합니다.",
+    "valueHypothesis": "배정 근거와 누락 정보를 한눈에 보여줍니다. 효과는 아직 미측정입니다.",
+    "technicalCombination": "체크리스트·규칙·담당자 조회부터 시작하며 모델을 필수로 넣지 않습니다.",
+    "scaleTrigger": "자유문 해석의 모호함이 실제 병목이면 검색이나 제한된 LLM을 비교합니다.",
+    "weaknessCounterargument": "합성 예제입니다. 새 도구가 메일함보다 더 많은 수고를 만들 수 있습니다.",
+    "nextCheck": "구현 전에 가명 요청 20건을 현재 방식과 같은 조건에서 관찰합니다."
+  },
+  "decisionOwner": "운영 조정 담당자와 정비 책임자",
+  "problem": "안전 판단을 자동화하지 않고 정비 요청을 명확한 담당자에게 전달해야 합니다.",
+  "currentWorkflow": "현재 비교 대상은 공용 메일함과 시트라는 가정이며 실제 팀 관찰은 하지 않았습니다.",
+  "decisionToSupport": "담당팀과 누락 항목을 제시하고 사람이 검토하도록 합니다.",
+  "nonGoals": [
+    "자동 설비 정지·정비 승인·구매·외부 메시지 발송은 범위 밖입니다."
+  ],
+  "sources": [
+    {
+      "id": "sample-data",
+      "kind": "synthetic",
+      "url": "fixture://support-triage",
+      "checkedAt": "2026-11-02",
+      "supports": "정형 요청 유형과 모호한 설명이 섞인 가상의 메일함을 사용합니다.",
+      "limits": "고객 관찰·실제 정책·측정된 업무 성과를 포함하지 않습니다."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req-owner",
+      "need": "모든 제안에는 담당자 또는 명시적인 이관 경로가 필요합니다.",
+      "sourceIds": [
+        "sample-data"
+      ],
+      "acceptance": "담당자를 모르면 만들어 내지 않고 추가 확인으로 넘깁니다.",
+      "scenarioIds": [
+        "unknown-owner"
+      ]
+    },
+    {
+      "id": "req-boundary",
+      "need": "제안이 정비 행동을 직접 실행해서는 안 됩니다.",
+      "sourceIds": [
+        "sample-data"
+      ],
+      "acceptance": "안전·승인 질문은 정비 책임자에게 전달합니다.",
+      "scenarioIds": [
+        "unsafe-request"
+      ]
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "manual-desk",
+      "method": "메일함과 체크리스트",
+      "mechanism": "담당자가 요청을 읽고 담당팀을 선택합니다.",
+      "dataNeeded": "현재 절차와 관리되는 담당자 목록이 필요합니다.",
+      "worksWhen": "요청량이 적고 유형이 익숙할 때 적합합니다.",
+      "failsWhen": "반복 이관이 많아지거나 소유권이 불명확하면 어렵습니다.",
+      "costAndOperations": "새 서비스 없이 시작하지만 담당자의 시간이 필요합니다.",
+      "disposition": "conditional",
+      "reason": "새 소프트웨어 전에 관찰할 비교 대상으로 유지합니다.",
+      "evidenceIds": [
+        "sample-data"
+      ]
+    },
+    {
+      "id": "rules-lookup",
+      "method": "규칙과 담당자 조회",
+      "mechanism": "정형 요청 유형을 검토된 담당자 규칙에 연결합니다.",
+      "dataNeeded": "안정적인 유형과 버전 관리되는 담당자 표가 필요합니다.",
+      "worksWhen": "요청에 필요한 정형 필드가 있을 때 적합합니다.",
+      "failsWhen": "자유문 모호함이 지배적이거나 담당자 표가 변하면 어렵습니다.",
+      "costAndOperations": "작은 로컬 코드나 기존 포털로 시작하고 규칙을 관리합니다.",
+      "disposition": "selected",
+      "reason": "LLM을 가정하지 않고 명시적인 배정 근거를 제공할 수 있습니다.",
+      "evidenceIds": [
+        "sample-data"
+      ]
+    },
+    {
+      "id": "bounded-language",
+      "method": "검색과 제한된 LLM",
+      "mechanism": "검토된 절차를 검색해 배정 제안 초안을 작성합니다.",
+      "dataNeeded": "대표 요청·원본 정책·보류 기준이 필요합니다.",
+      "worksWhen": "관찰된 모호함 때문에 단순 방식이 반복 실패할 때 비교합니다.",
+      "failsWhen": "근거가 없거나 모델 출력을 권한으로 오인하면 실패합니다.",
+      "costAndOperations": "provider 비용·지연·평가 담당 업무가 추가됩니다.",
+      "disposition": "conditional",
+      "reason": "체크리스트·규칙의 실제 부족이 확인된 뒤 평가합니다.",
+      "evidenceIds": [
+        "sample-data"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "routing-unknown",
+      "statement": "대부분의 요청은 체크리스트로 처리할 수 있을 수 있습니다.",
+      "impact": "요청이 대부분 자유문이면 고정 규칙이 중요한 맥락을 놓칠 수 있습니다.",
+      "verification": "현재 담당자와 가명 처리한 요청을 함께 검토합니다.",
+      "blocks": "execution"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "unknown-owner",
+      "trigger": "담당자 표에 없는 새 설비에 대한 요청이 들어옵니다.",
+      "expectedResponse": "담당자를 확인하고 원래 요청 내용을 보존합니다.",
+      "requiredDesignChange": "담당자 미확인과 부적격 결정을 별도 상태로 구분합니다.",
+      "alternativeIds": [
+        "rules-lookup"
+      ],
+      "evaluationMethod": "설계 문서만 검토하며 제품 실행을 검증했다고 주장하지 않습니다."
+    },
+    {
+      "id": "unsafe-request",
+      "trigger": "요청 설명에 시스템이 설비를 정지하라는 문장이 있습니다.",
+      "expectedResponse": "사람에게 이관하고 제어 명령을 발행하지 않습니다.",
+      "requiredDesignChange": "요청 문장을 실행 권한이 아닌 데이터로 취급합니다.",
+      "alternativeIds": [
+        "rules-lookup",
+        "bounded-language"
+      ],
+      "evaluationMethod": "권한과 담당자 이관 경계에 대한 설계 문서를 검토합니다."
+    }
+  ],
+  "claims": [
+    {
+      "id": "value-claim",
+      "kind": "hypothesis",
+      "statement": "명확한 배정 근거가 반복 이관을 줄일 수 있습니다.",
+      "sourceIds": [
+        "sample-data"
+      ],
+      "limit": "실제 작업 완료·시간 절감·사용자 선호는 측정하지 않았습니다."
+    }
+  ],
+  "deployment": {
+    "runtime": "첫 검토에는 로컬 파일이나 기존 포털로 충분합니다.",
+    "identityBoundary": "인증된 운영 담당자만 배정 변경을 제안할 수 있습니다.",
+    "dataBoundary": "가명 요청을 사용하고 설비·고객 상세 정보는 로컬에 보관합니다.",
+    "capacityModel": "서비스 런타임을 선택하기 전에 요청량과 담당자 대기를 측정합니다.",
+    "failureRecovery": "오류가 나도 원본 설명과 마지막 담당자를 보존합니다.",
+    "releaseRollback": "배정 규칙의 버전을 관리하고 직전 검토본으로 복구합니다.",
+    "observability": "민감한 원문을 기록하지 않고 보류와 정정 사유를 집계합니다.",
+    "operatingOwner": "정비 책임자가 정책 변경과 예외 처리를 맡습니다."
+  },
+  "nextValidation": "담당자와 같은 가명 요청 20건으로 체크리스트와 규칙을 비교합니다.",
+  "critiques": [
+    {
+      "lens": "사용자 채택",
+      "challenge": "소규모 팀에는 현재 메일함만으로 충분할 수 있습니다.",
+      "response": "현재 메일함을 비교 대상으로 유지합니다.",
+      "residualRisk": "새 흐름이 수고를 줄이기보다 늘릴 수 있습니다."
+    },
+    {
+      "lens": "데이터 품질",
+      "challenge": "설비 담당자 정보가 누락되거나 오래되었을 수 있습니다.",
+      "response": "담당자 미확인을 표시하고 정책 소유자에게 확인합니다.",
+      "residualRisk": "실제 요청 없이는 배정 품질을 측정할 수 없습니다."
+    },
+    {
+      "lens": "운영 안전성",
+      "challenge": "요청이 영향이 큰 설비 조작을 요구할 수 있습니다.",
+      "response": "모든 설비 제어를 어시스턴트 범위 밖에 둡니다.",
+      "residualRisk": "사람의 절차와 실제 시스템 권한을 추가로 검토해야 합니다."
+    }
+  ]
+}

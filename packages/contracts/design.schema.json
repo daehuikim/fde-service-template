@@ -458,7 +458,7 @@
         "properties": {
           "lens": {
             "type": "string",
-            "minLength": 8
+            "minLength": 2
           },
           "challenge": {
             "type": "string",

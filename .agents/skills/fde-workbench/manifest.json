@@ -1,0 +1,10 @@
+{
+  "files": {
+    "LICENSE": "b973187766162a502592f8a1c60272d80e6265c361e47fa79c08e7c33fbedfe2",
+    "SKILL.md": "27bee771b34db5dde044c8f5192f98b6246afd9b69408ac6caba1307e885f785",
+    "references/design.schema.json": "3e207abfb88cbf2d7b58b458266a1f7638eae4c9c9635af02bffc1d5636e3a3f",
+    "references/methods.md": "ca102427959214dc22c9be5f5d399115d632d97df0e9faa72108238a31b830ff"
+  },
+  "name": "fde-workbench",
+  "version": "0.2.0"
+}

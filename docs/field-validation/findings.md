@@ -1,6 +1,6 @@
 # 기준 템플릿 부족분과 반영 항목
 
-기준점: fde-service-template `a146432` → 이 GitHub template으로 만든 별도 `fde-field-validation`. GitHub의 fork relation이 있는 저장소는 아니며 lineage는 manifest에 명시한다. 사용자 범위 확정에 따라 제품 코드는 추가하지 않고 분석·방법 선택·설계까지만 평가했다.
+기준점: fde-service-template `a146432` → 이 GitHub template으로 만든 내부 검토 기록. 검토 자료는 현재 저장소에 통합했다. 사용자 범위 확정에 따라 제품 코드는 추가하지 않고 분석·방법 선택·설계까지만 평가했다.
 
 | 실제 드러난 부족분 | 사례에서 본 실패 위험 | 기준 레포 반영 |
 |---|---|---|

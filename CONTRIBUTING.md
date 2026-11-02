@@ -1,5 +1,21 @@
-# 기여
+# Contributing
 
-새 문제는 docs/problem-brief.md의 업무/대안/성공 조건부터 설명해 주세요. `codex/주제` 또는 짧은 feature branch에서 변경하고 실제 작업 단위의 Conventional Commit을 남깁니다.
+[English](CONTRIBUTING.md) · [한국어](README.ko.md)
 
-PR 전 `pnpm qa`, `pnpm eval:fixture`, `pnpm security:scan`을 실행하고 DB 변경은 `pnpm test:db`를 추가합니다. 미실시는 blocked/not_run과 이유를 적습니다. 계약/배포 변경은 ADR과 architecture.spec.json을 함께 갱신합니다. 실제 사용자 데이터 대신 합성 사례를 기여해 주세요. 외부 자료는 출처·revision·license를 기록합니다.
+Use a `codex/` or focused feature branch. Describe the problem and observable behavior before introducing a new abstraction or dependency. The Python package lives under `src/fde_workbench`; the optional web example remains under `apps/web` and `packages`.
+
+```sh
+uv sync --frozen
+uv run ruff check src tests
+uv run ruff format --check src tests
+uv run pytest
+uv build
+uv run twine check dist/*
+uv run python scripts/package-smoke.py
+```
+
+Keep the schema copies in `packages/contracts`, the Python resources and the skill reference in sync; the parity test checks them. New package resources must work from an installed wheel outside this checkout. Change both localized example variants and both README entrypoints when behavior changes. User-authored content is not automatically translated.
+
+For JS/web changes, also run `pnpm qa` and `pnpm eval:fixture`; DB changes require the real database tests. Product figures are generated with `pnpm assets`, visually reviewed as PNGs, and checked with `pnpm assets:check`. Architecture/source changes require `pnpm diagram` before `pnpm qa`.
+
+Use real, small Conventional Commits. Preserve upstream licenses and source provenance. Keep secrets/customer data out of public commits. Before publishing, run the tracked-file and gitleaks history scan. Do not turn a source-reference check or synthetic test into a claim of business effectiveness.
