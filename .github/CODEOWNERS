@@ -1,0 +1,21 @@
+# Code owners review and approve changes in their paths. Later rules win.
+# Keep this in sync with the Maintainers table in GOVERNANCE.md.
+
+*                               @daehuikim
+
+# Governance, CI and branch rules: lead maintainer only.
+/.github/                       @daehuikim
+/GOVERNANCE.md                  @daehuikim
+/CODE_OF_CONDUCT.md             @daehuikim
+/SECURITY.md                    @daehuikim
+/docs/maintainers/              @daehuikim
+
+# Package, release and contracts.
+/src/                           @daehuikim
+/pyproject.toml                 @daehuikim
+/packages/contracts/            @daehuikim
+
+# Skills and the showcase. Add area maintainers here as they join.
+/.agents/skills/                @daehuikim
+/showcase/                      @daehuikim
+/SHOWCASE.md                    @daehuikim

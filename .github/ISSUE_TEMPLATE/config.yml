@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability · 보안 취약점
+    url: https://github.com/daehuikim/fde-service-template/security/advisories/new
+    about: Report privately. Do not open a public issue. · 공개 이슈 대신 비공개로 신고하세요.
+  - name: Add a showcase entry by PR · PR로 사례 추가
+    url: https://github.com/daehuikim/fde-service-template/blob/main/showcase/README.md
+    about: One JSON file per case. · 사례당 JSON 파일 하나.
