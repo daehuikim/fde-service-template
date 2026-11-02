@@ -1,0 +1,78 @@
+{
+  "calculationChecks": {
+    "publicProfile": true,
+    "syntheticGreedy": true,
+    "syntheticCombination": true,
+    "syntheticWorstCase": true,
+    "scope": "design calculation only; not an optimizer implementation or product effectiveness test"
+  },
+  "scope": "design-only",
+  "createdAt": "2026-11-02T13:49:49.677Z",
+  "gitSha": "1546878a46a0e18e5d917d1e99efaf9ebac0c3aa",
+  "dirty": false,
+  "results": [
+    {
+      "id": "ev-siting",
+      "hash": "490e0fe8fe1cb31231a7a9d37ffcd2da82412191dc32183de42b14e2a5c5b8ba",
+      "inputHashes": {
+        "decision-table.json": "c9017ad9f4ac9b69073f734e576e64fc567556de0f2f3532e8e5512dabcbfc63",
+        "profile.json": "5bcddfbec6f0e2f269a24114eec1a3b6b8da791283929a9183f7d4fcad442ca6",
+        "public-stations.json": "ab4adc7328098c712623ba006a89cce7f0bc4cc19cd3860eb06affcb3fd3db91"
+      },
+      "status": "pass",
+      "scope": "design_artifact_only",
+      "errors": [],
+      "metrics": {
+        "briefCharacters": 435,
+        "critiqueLenses": 4,
+        "requirements": 5,
+        "linkedRequirements": 5,
+        "alternatives": 5,
+        "selected": [
+          "relational-screening"
+        ],
+        "scenarios": 8,
+        "unresolvedAssumptions": 3,
+        "empiricalOutcomeClaims": 0
+      },
+      "limits": [
+        "Source IDs do not prove textual entailment.",
+        "No automatic assessment of method suitability, UX quality or customer value.",
+        "No product implementation or execution readiness is certified."
+      ]
+    },
+    {
+      "id": "partner-qa",
+      "hash": "3a52a0b6c753151eb7237449eaa14c934246187c811455d34ce50e3a741746f2",
+      "inputHashes": {
+        "policy-table.json": "f386f90a21fdd10823d27d1596367aec85c0758e5a3d85f0e57870e1e000bf9b"
+      },
+      "status": "pass",
+      "scope": "design_artifact_only",
+      "errors": [],
+      "metrics": {
+        "briefCharacters": 462,
+        "critiqueLenses": 4,
+        "requirements": 5,
+        "linkedRequirements": 5,
+        "alternatives": 5,
+        "selected": [
+          "retrieval-rules"
+        ],
+        "scenarios": 8,
+        "unresolvedAssumptions": 2,
+        "empiricalOutcomeClaims": 0
+      },
+      "limits": [
+        "Source IDs do not prove textual entailment.",
+        "No automatic assessment of method suitability, UX quality or customer value.",
+        "No product implementation or execution readiness is certified."
+      ]
+    }
+  ],
+  "humanValidation": "not_run",
+  "independentReview": "not_run",
+  "methodSuitability": "self_review_only",
+  "productImplementation": "not_run",
+  "limitations": "Structural traceability counts do not measure semantic correctness, customer value, retrieval/model accuracy or deployment readiness."
+}

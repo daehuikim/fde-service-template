@@ -4,5 +4,8 @@
   "derivation": "GitHub template generation; not a GitHub fork relationship",
   "scope": "design-only after explicit user correction",
   "date": "2026-11-02",
-  "implementationOfCaseProducts": false
+  "implementationOfCaseProducts": false,
+  "validationRepository": "https://github.com/daehuikim/fde-field-validation",
+  "validationCommit": "1310180",
+  "backportedTo": "https://github.com/daehuikim/fde-service-template"
 }
