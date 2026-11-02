@@ -1,0 +1,17 @@
+# Example only. Merge into project .codex/config.toml after review.
+# All optional developer MCP servers are disabled by default.
+[mcp_servers.firecrawl]
+command = "npx"
+args = ["-y", "firecrawl-mcp@3.36.0"]
+enabled = false
+env_vars = ["FIRECRAWL_API_KEY"]
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@4.4.4"]
+enabled = false
+
+[mcp_servers.shadcn]
+command = "npx"
+args = ["-y", "shadcn@4.23.0", "mcp"]
+enabled = false

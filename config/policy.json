@@ -1,0 +1,18 @@
+{
+  "profile": "restricted-assignment",
+  "browserAutomation": false,
+  "externalDataTransfer": false,
+  "autoUpload": false,
+  "maxRows": 1000,
+  "maxBytes": 200000,
+  "agent": {
+    "maxSteps": 12,
+    "maxSeconds": 120,
+    "maxCostUSD": 0,
+    "stopOn": [
+      "missing_permission",
+      "schema_error",
+      "budget_exceeded"
+    ]
+  }
+}

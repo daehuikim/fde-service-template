@@ -1,0 +1,43 @@
+# Proposed starting point. Replace image SHA, secret, ingress and resource values.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fde-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: fde-web}
+  template:
+    metadata:
+      labels: {app: fde-web}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: web
+          image: ghcr.io/OWNER/fde-service-template:REPLACE_WITH_GIT_SHA
+          ports: [{containerPort: 3000}]
+          envFrom: [{secretRef: {name: fde-runtime}}]
+          env:
+            - {name: APP_MODE, value: live}
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          readinessProbe:
+            httpGet: {path: /api/health, port: 3000}
+          livenessProbe:
+            httpGet: {path: /api/health, port: 3000}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          volumeMounts: [{name: tmp, mountPath: /tmp}]
+      volumes: [{name: tmp, emptyDir: {}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: fde-web}
+spec:
+  selector: {app: fde-web}
+  ports: [{port: 80, targetPort: 3000}]

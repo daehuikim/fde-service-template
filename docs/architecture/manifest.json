@@ -1,0 +1,14 @@
+{
+  "upstreamRevision": "9e90a3b286baa6eef9700ca01abb80dbf0ad1514",
+  "specHash": "4a8d752ae210bd3bdafb0b388725c34ce656c5aec9c45609b8916bd5e0fa0f3d",
+  "sourceHash": "cd05d6cd9996a4210a421130a3e95d2dc8514878b3ba1e6a661359250230b9a1",
+  "outputs": {
+    "layers.svg": "0b0543fb50410465c6c934693ade254166f824bb8e124d782faf86f8302aaee5",
+    "deployment.svg": "ae3b511628fbdbf98e2396a6c0874a69de9a857f004fd4c00a6c76444dc15c7f",
+    "architecture.html": "bae2a5b1f23e63bde59a5f570bc6a107139c40cafc56b35c59d654569c69d6f1"
+  },
+  "generation": "pass",
+  "structure": "pass",
+  "visualReview": "not_run",
+  "reason": "restricted-assignment: browser rendering not enabled; SVG available in README"
+}

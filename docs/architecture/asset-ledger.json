@@ -1,0 +1,26 @@
+[
+  {
+    "path": ".agents/skills/stack-diagram/assets/fonts/Geist.woff2",
+    "sha256": "19f9c92546aa300c312235e3125af1b81394d8db9a4bc4a425cd5b641d2d54e1",
+    "license": "OFL-1.1",
+    "acquiredAt": "2026-11-02",
+    "modifications": "none",
+    "source": "https://github.com/caru-ini/stack-diagram/tree/9e90a3b286baa6eef9700ca01abb80dbf0ad1514/skills/stack-diagram/assets/fonts"
+  },
+  {
+    "path": ".agents/skills/stack-diagram/assets/fonts/JetBrainsMono.woff2",
+    "sha256": "2c32b9b3ee358c119e210f6f5195f9bd34894d78a785ff2e95d60e718e400af4",
+    "license": "OFL-1.1",
+    "acquiredAt": "2026-11-02",
+    "modifications": "none",
+    "source": "https://github.com/caru-ini/stack-diagram/tree/9e90a3b286baa6eef9700ca01abb80dbf0ad1514/skills/stack-diagram/assets/fonts"
+  },
+  {
+    "path": ".agents/skills/stack-diagram/assets/fonts/Pretendard-Regular.woff2",
+    "sha256": "fad853f7f47c6c8b103171e7193fa095708cdcd70850a71d93aa5379e8a61d63",
+    "license": "OFL-1.1",
+    "acquiredAt": "2026-11-02",
+    "modifications": "none",
+    "source": "https://github.com/orioncactus/pretendard/tree/v1.3.9"
+  }
+]

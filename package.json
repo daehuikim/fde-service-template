@@ -1,0 +1,41 @@
+{
+  "name": "fde-service-template",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev": "pnpm --filter @fde/web dev",
+    "build": "pnpm --filter @fde/web build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "qa": "node scripts/check-tools.mjs && node scripts/contracts.mjs --check && pnpm typecheck && pnpm test && pnpm diagram:check && pnpm build",
+    "eval:fixture": "node --import tsx packages/evaluation/run.ts",
+    "diagram": "node scripts/diagram.mjs",
+    "diagram:check": "node scripts/diagram.mjs --check",
+    "doctor": "node scripts/toolkit.mjs doctor",
+    "setup:tools": "node scripts/toolkit.mjs setup",
+    "test:db": "node --import tsx qa/db.ts",
+    "test:load": "node scripts/toolkit.mjs load",
+    "eval:live": "node scripts/toolkit.mjs live",
+    "db:migrate": "node --import tsx packages/db/migrate.ts",
+    "security:scan": "node scripts/secrets.mjs",
+    "contracts": "node scripts/contracts.mjs",
+    "toolkit:doctor": "node scripts/toolkit.mjs doctor",
+    "test:security": "node scripts/semgrep.mjs",
+    "test:live-smoke": "node qa/live-smoke.mjs"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "csv-parse": "7.0.3",
+    "postgres": "3.4.8"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.7",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.3",
+    "tsx": "4.21.0",
+    "vitest": "4.0.18"
+  },
+  "type": "module"
+}

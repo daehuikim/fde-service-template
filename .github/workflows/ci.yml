@@ -1,0 +1,47 @@
+name: quality
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.17.1
+      - run: npm install -g pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm setup:tools --profile restricted-assignment
+      - run: pnpm qa
+      - run: pnpm eval:fixture
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.7-alpine
+        env:
+          POSTGRES_PASSWORD: local-admin-test-only
+          POSTGRES_DB: fde_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://fde_runtime:local-test-only@localhost:5432/fde_test
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.17.1
+      - run: npm install -g pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: node qa/provision-db.mjs
+        env:
+          QA_DATABASE_PROVISION: "1"
+          DATABASE_ADMIN_URL: postgres://postgres:local-admin-test-only@localhost:5432/fde_test
+      - run: pnpm db:migrate
+      - run: pnpm db:migrate
+      - run: pnpm test:db

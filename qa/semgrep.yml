@@ -1,0 +1,13 @@
+rules:
+  - id: no-eval-untrusted-code
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: Do not evaluate untrusted code.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+  - id: no-raw-html-in-product-ui
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: CSV and tool output must remain escaped React text.
+    pattern: <$TAG dangerouslySetInnerHTML={...} ... />

@@ -1,0 +1,234 @@
+[
+  {
+    "id": "valid-operations-0",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR0,정상,operations,0",
+    "accepted": 1,
+    "error": null,
+    "reason": "valid operations 0"
+  },
+  {
+    "id": "valid-finance-1",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR1,정상,finance,1",
+    "accepted": 1,
+    "error": null,
+    "reason": "valid finance 1"
+  },
+  {
+    "id": "valid-support-0",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR2,정상,support,0",
+    "accepted": 1,
+    "error": null,
+    "reason": "valid support 0"
+  },
+  {
+    "id": "valid-operations-100000000",
+    "split": "holdout",
+    "csv": "request_id,title,department,amount\nR3,정상,operations,100000000",
+    "accepted": 1,
+    "error": null,
+    "reason": "valid operations 100000000"
+  },
+  {
+    "id": "valid-finance-100000000",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR4,정상,finance,100000000",
+    "accepted": 1,
+    "error": null,
+    "reason": "valid finance 100000000"
+  },
+  {
+    "id": "valid-support-500",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR5,정상,support,500",
+    "accepted": 1,
+    "error": null,
+    "reason": "valid support 500"
+  },
+  {
+    "id": "duplicate-operations",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,요청,operations,1\nR,요청2,operations,2",
+    "accepted": 1,
+    "error": null,
+    "reason": "duplicate operations"
+  },
+  {
+    "id": "duplicate-finance",
+    "split": "holdout",
+    "csv": "request_id,title,department,amount\nR,요청,finance,1\nR,요청2,finance,2",
+    "accepted": 1,
+    "error": null,
+    "reason": "duplicate finance"
+  },
+  {
+    "id": "duplicate-support",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,요청,support,1\nR,요청2,support,2",
+    "accepted": 1,
+    "error": null,
+    "reason": "duplicate support"
+  },
+  {
+    "id": "missing-id",
+    "split": "development",
+    "csv": "request_id,title,department,amount\n,요청,operations,1",
+    "accepted": 0,
+    "error": null,
+    "reason": "missing id"
+  },
+  {
+    "id": "missing-title",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,,operations,1",
+    "accepted": 0,
+    "error": null,
+    "reason": "missing title"
+  },
+  {
+    "id": "missing-department",
+    "split": "holdout",
+    "csv": "request_id,title,department,amount\nR,요청,,1",
+    "accepted": 0,
+    "error": null,
+    "reason": "missing department"
+  },
+  {
+    "id": "missing-amount",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,요청,operations,",
+    "accepted": 0,
+    "error": null,
+    "reason": "missing amount"
+  },
+  {
+    "id": "negative",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,요청,operations,-1",
+    "accepted": 0,
+    "error": null,
+    "reason": "negative"
+  },
+  {
+    "id": "overflow",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,요청,operations,100000001",
+    "accepted": 0,
+    "error": null,
+    "reason": "overflow"
+  },
+  {
+    "id": "fraction",
+    "split": "holdout",
+    "csv": "request_id,title,department,amount\nR,요청,operations,1.1",
+    "accepted": 0,
+    "error": null,
+    "reason": "fraction"
+  },
+  {
+    "id": "nan",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,요청,operations,NaN",
+    "accepted": 0,
+    "error": null,
+    "reason": "nan"
+  },
+  {
+    "id": "space",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR, ,operations,1",
+    "accepted": 0,
+    "error": null,
+    "reason": "space"
+  },
+  {
+    "id": "id-pattern",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nbad id,요청,operations,1",
+    "accepted": 0,
+    "error": null,
+    "reason": "id pattern"
+  },
+  {
+    "id": "department-enum",
+    "split": "holdout",
+    "csv": "request_id,title,department,amount\nR,요청,other,1",
+    "accepted": 0,
+    "error": null,
+    "reason": "department enum"
+  },
+  {
+    "id": "finance-zero",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,요청,finance,0",
+    "accepted": 0,
+    "error": null,
+    "reason": "finance zero"
+  },
+  {
+    "id": "leading-zero",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,요청,support,01",
+    "accepted": 0,
+    "error": null,
+    "reason": "leading zero"
+  },
+  {
+    "id": "injection",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,<script>alert(1)</script>,support,1",
+    "accepted": 1,
+    "error": null,
+    "reason": "injection"
+  },
+  {
+    "id": "quoted-comma",
+    "split": "holdout",
+    "csv": "request_id,title,department,amount\nR,\"요청, 확인\",operations,1",
+    "accepted": 1,
+    "error": null,
+    "reason": "quoted comma"
+  },
+  {
+    "id": "title-boundary",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가,operations,1",
+    "accepted": 1,
+    "error": null,
+    "reason": "title boundary"
+  },
+  {
+    "id": "long-title",
+    "split": "development",
+    "csv": "request_id,title,department,amount\nR,가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가,operations,1",
+    "accepted": 0,
+    "error": null,
+    "reason": "long title"
+  },
+  {
+    "id": "empty",
+    "split": "development",
+    "csv": "request_id,title,department,amount\n",
+    "accepted": null,
+    "error": "invalid_row_count",
+    "reason": "empty"
+  },
+  {
+    "id": "malformed",
+    "split": "holdout",
+    "csv": "request_id,title,department,amount\nR,\"미완료,operations,1",
+    "accepted": null,
+    "error": "parse_error",
+    "reason": "malformed"
+  },
+  {
+    "id": "wrong-headers",
+    "split": "holdout",
+    "csv": "id,title,department,amount\nR,요청,support,1",
+    "accepted": null,
+    "error": "invalid_headers",
+    "reason": "required headers"
+  }
+]

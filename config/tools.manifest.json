@@ -1,0 +1,84 @@
+{
+  "profile": "restricted-assignment",
+  "reviewedAt": "2026-11-02",
+  "requiredRuntime": "package.json + pnpm-lock.yaml",
+  "optional": [
+    {
+      "id": "firecrawl",
+      "version": "3.36.0",
+      "package": "firecrawl-mcp",
+      "url": "https://github.com/firecrawl/firecrawl-mcp-server",
+      "license": "MIT",
+      "network": true,
+      "authentication": true,
+      "browser": false,
+      "installed": false,
+      "status": "not_run"
+    },
+    {
+      "id": "context7",
+      "version": "4.4.4",
+      "package": "@upstash/context7-mcp",
+      "url": "https://github.com/upstash/context7",
+      "license": "MIT",
+      "network": true,
+      "authentication": "optional",
+      "browser": false,
+      "installed": false,
+      "status": "not_run"
+    },
+    {
+      "id": "shadcn",
+      "version": "4.23.0",
+      "package": "shadcn",
+      "url": "https://github.com/shadcn-ui/ui",
+      "license": "MIT",
+      "network": true,
+      "authentication": false,
+      "browser": false,
+      "installed": false,
+      "status": "not_run"
+    },
+    {
+      "id": "gitleaks",
+      "version": "8.30.1",
+      "url": "https://github.com/gitleaks/gitleaks",
+      "license": "MIT",
+      "path": "PATH external CLI",
+      "network": false,
+      "browser": false,
+      "authentication": false
+    },
+    {
+      "id": "k6",
+      "version": "2.3.0",
+      "url": "https://github.com/grafana/k6",
+      "license": "AGPL-3.0",
+      "path": "PATH external CLI",
+      "network": true,
+      "browser": false,
+      "authentication": "API bearer when live"
+    },
+    {
+      "id": "semgrep",
+      "version": "1.153.0",
+      "url": "https://github.com/semgrep/semgrep",
+      "license": "LGPL-2.1",
+      "status": "not_run",
+      "path": "external Python CLI",
+      "rules": "qa/semgrep.yml",
+      "browser": false,
+      "network": "installation only; metrics disabled"
+    }
+  ],
+  "saas": {
+    "firecrawl": "remote service response is not reproducible; API endpoint/version must be recorded per project; never send private data by default"
+  },
+  "notInstalled": [
+    "playwright browser",
+    "playwright API client (native fetch used instead)",
+    "axe-core",
+    "Impeccable (frontend-design selected instead)",
+    "Vercel skills (full license notice pending)"
+  ]
+}

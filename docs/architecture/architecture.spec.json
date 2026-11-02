@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "language": "ko",
+  "layers": [
+    {
+      "id": "layer-01",
+      "order": 1,
+      "title": "사용자 · 업무",
+      "description": "입력 → 검토 → 정정 → 결과",
+      "path": "apps/web/app/page.tsx",
+      "items": [
+        "합성 CSV 입력",
+        "오류 근거 확인",
+        "검증 결과 내보내기"
+      ],
+      "color": "#7546dd"
+    },
+    {
+      "id": "layer-02",
+      "order": 2,
+      "title": "계약 · 경계",
+      "description": "버전 있는 입력과 출력",
+      "path": "packages/contracts",
+      "items": [
+        "JSON Schema · Draft-07",
+        "엄격한 타입 · 추가 필드 거부",
+        "입력 한도 · 신뢰 경계"
+      ],
+      "color": "#07976f"
+    },
+    {
+      "id": "layer-03",
+      "order": 3,
+      "title": "실행 · 어댑터",
+      "description": "도구 연결과 API 오케스트레이션",
+      "path": "packages/tools",
+      "items": [
+        "Next.js API · 서버 인증",
+        "CSV parser · AJV",
+        "취소 · evidence · timeout 한도"
+      ],
+      "color": "#2866de"
+    },
+    {
+      "id": "layer-04",
+      "order": 4,
+      "title": "판단 · 도메인",
+      "description": "결정적인 업무 규칙",
+      "path": "packages/domain",
+      "items": [
+        "중복 · 부서 · 금액 검증",
+        "상태 전이 invariant",
+        "LLM 없는 핵심 경로"
+      ],
+      "color": "#5743db"
+    },
+    {
+      "id": "layer-05",
+      "order": 5,
+      "title": "영속 · 격리",
+      "description": "트랜잭션과 tenant 경계",
+      "path": "packages/db",
+      "items": [
+        "PostgreSQL · RLS",
+        "멱등 키 · 충돌 감지",
+        "migration · 제약 조건"
+      ],
+      "color": "#c6780c"
+    },
+    {
+      "id": "layer-06",
+      "order": 6,
+      "title": "검증 · 작업 도구",
+      "description": "품질을 반복 검증",
+      "path": "qa",
+      "items": [
+        "37+ 자동 테스트 · 합성 평가",
+        "프로젝트 skills · 선택형 MCP",
+        "사람 관찰 · baseline 기록"
+      ],
+      "color": "#ce4266"
+    },
+    {
+      "id": "layer-07",
+      "order": 7,
+      "title": "배포 · 운영",
+      "description": "같은 앱을 환경에 맞게 운영",
+      "path": "deploy",
+      "items": [
+        "Compose · 단일 호스트",
+        "K8s · 다중 replica 설계안",
+        "TLS · secret · backup · rollback"
+      ],
+      "color": "#4c617a"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "client",
+      "label": "사용자 / API client",
+      "boundary": "public",
+      "status": "implemented",
+      "path": "apps/web/app/page.tsx"
+    },
+    {
+      "id": "edge",
+      "label": "TLS · Caddy ingress",
+      "boundary": "edge",
+      "status": "configured",
+      "path": "deploy/Caddyfile"
+    },
+    {
+      "id": "web",
+      "label": "Next.js modular monolith",
+      "boundary": "private-app",
+      "status": "implemented",
+      "path": "apps/web"
+    },
+    {
+      "id": "db",
+      "label": "PostgreSQL · RLS",
+      "boundary": "private-data",
+      "status": "implemented_not_run",
+      "path": "packages/db"
+    },
+    {
+      "id": "ci",
+      "label": "GitHub Actions · QA",
+      "boundary": "delivery",
+      "status": "configured",
+      "path": ".github/workflows/ci.yml"
+    },
+    {
+      "id": "registry",
+      "label": "OCI registry · immutable SHA",
+      "boundary": "delivery",
+      "status": "proposed",
+      "path": "deploy/README.md"
+    },
+    {
+      "id": "backup",
+      "label": "암호화 backup · PITR",
+      "boundary": "private-data",
+      "status": "proposed",
+      "path": "deploy/README.md"
+    },
+    {
+      "id": "telemetry",
+      "label": "logs · metrics · alerts",
+      "boundary": "operations",
+      "status": "proposed",
+      "path": "docs/operations.md"
+    }
+  ],
+  "edges": [
+    {
+      "id": "https",
+      "from": "client",
+      "to": "edge",
+      "protocol": "HTTPS",
+      "sync": true,
+      "externalTransfer": true,
+      "status": "configured"
+    },
+    {
+      "id": "proxy",
+      "from": "edge",
+      "to": "web",
+      "protocol": "HTTP private network",
+      "sync": true,
+      "externalTransfer": false,
+      "status": "configured"
+    },
+    {
+      "id": "query",
+      "from": "web",
+      "to": "db",
+      "protocol": "SQL / TLS in hosted environments",
+      "sync": true,
+      "externalTransfer": false,
+      "status": "implemented_not_run"
+    },
+    {
+      "id": "release",
+      "from": "ci",
+      "to": "registry",
+      "protocol": "OCI push / SHA tag",
+      "sync": false,
+      "externalTransfer": true,
+      "status": "proposed"
+    },
+    {
+      "id": "deploy",
+      "from": "registry",
+      "to": "web",
+      "protocol": "immutable image pull",
+      "sync": false,
+      "externalTransfer": false,
+      "status": "proposed"
+    },
+    {
+      "id": "backup",
+      "from": "db",
+      "to": "backup",
+      "protocol": "WAL / encrypted snapshots",
+      "sync": false,
+      "externalTransfer": false,
+      "status": "proposed"
+    },
+    {
+      "id": "observe",
+      "from": "web",
+      "to": "telemetry",
+      "protocol": "redacted logs / OTLP proposed",
+      "sync": false,
+      "externalTransfer": false,
+      "status": "proposed"
+    }
+  ]
+}
