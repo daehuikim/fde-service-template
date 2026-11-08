@@ -17,6 +17,7 @@ This directory holds the assistant skills for field-deployment and problem-solvi
 | 고객 현장에서만 나는 장애 | [fde-field-debug](fde-field-debug/SKILL.md) | 환경 차이표, 가설 소거, 재현과 수정 확인 |
 | 고객 보안 심사·데이터 경계 | [fde-security-review](fde-security-review/SKILL.md) | 데이터 흐름, 외부 전송 목록, 질의서 답변 근거 |
 | 대안 간 비용·TCO | [fde-cost-model](fde-cost-model/SKILL.md) | 단위 비용, 민감도, 손익분기 규모 |
+| **로그인·권한·테넌트 격리·DB 수십 테이블을 한 패키지로** | [fde-enterprise-stack](fde-enterprise-stack/SKILL.md) | 행위자×행동×대상 표, migration·RLS·API·화면 상태·배포 변경, 실제 DB 검증 표 |
 | 화면/API 설계 | [fde-design](fde-design/SKILL.md) | UI 상태, 계약, ADR, 아키텍처 그림 |
 | 기능 구현 / 도구 adapter | [fde-implementation](fde-implementation/SKILL.md) · [fde-tool-integration](fde-tool-integration/SKILL.md) | 실행 가능한 변경과 테스트 |
 | 정량·정성 평가 | [fde-quant-eval](fde-quant-eval/SKILL.md) · [fde-qual-eval](fde-qual-eval/SKILL.md) | 실제 보고서, 관찰 근거 |
@@ -29,6 +30,7 @@ This directory holds the assistant skills for field-deployment and problem-solvi
 - 무엇을 만들지 → `fde-problem-design` → `fde-feature-teardown`(살지, 쓸지, 만들지) → `fde-cost-model`
 - 어떻게 배포할지 → `fde-compat-scale-review` → `fde-target-env` → `fde-security-review`
 - 됐다고 말하기 전 → `fde-validation-review` → `fde-quant-eval` / `fde-qual-eval`
+- 엔터프라이즈 기능(인증·권한·DB) → `fde-enterprise-stack` → `fde-security-review`(질의서) → `fde-compat-scale-review`(확장 한계)
 - 설치 후 문제 → `fde-field-debug` (환경 정보는 `fde-target-env/scripts/env-probe.sh`)
 
 ## 고객 환경 수집 스크립트

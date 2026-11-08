@@ -21,6 +21,7 @@ spec:
           envFrom: [{secretRef: {name: fde-runtime}}]
           env:
             - {name: APP_MODE, value: live}
+            - {name: APP_ORIGIN, value: https://app.example.com} # exact public origin: CSRF check and Secure cookies
           resources:
             requests: {cpu: 100m, memory: 256Mi}
             limits: {cpu: "1", memory: 512Mi}

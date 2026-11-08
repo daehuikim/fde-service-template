@@ -90,7 +90,7 @@ Beyond problem design, the skill carries focused review lenses you can ask for b
 | **Target-environment fit** | Deployment form and image rules matched to the customer's OS, kernel, runtime, Kubernetes and network constraints |
 | **Field debugging, security/data boundary, cost model** | Environment diff and hypothesis elimination; data flow and outbound-call inventory; unit cost, sensitivity and break-even |
 
-This repository also includes matching project skills and a read-only customer environment probe. See the [skill catalog](.agents/skills/README.md).
+This repository also includes matching project skills, a read-only customer environment probe, and `fde-enterprise-stack`: a workflow for taking a service from a single app server to session login, tenant RBAC, row-level-secured PostgreSQL schemas and verified deployment settings. See the [skill catalog](.agents/skills/README.md).
 
 ## Use it as a Python library
 

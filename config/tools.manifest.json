@@ -80,5 +80,37 @@
     "axe-core",
     "Impeccable (frontend-design selected instead)",
     "Vercel skills (full license notice pending)"
+  ],
+  "references": [
+    {
+      "id": "better-auth",
+      "version": "1.7.18",
+      "package": "better-auth",
+      "url": "https://github.com/better-auth/better-auth",
+      "license": "MIT",
+      "reviewedAt": "2026-11-08",
+      "installed": false,
+      "status": "adoption-candidate",
+      "when": "SSO/MFA/passkeys or organization plugin needed; keep Principal and RLS session-variable contract (see .agents/skills/fde-enterprise-stack/references/auth-options.md)"
+    },
+    {
+      "id": "openfga",
+      "version": "1.22.1",
+      "url": "https://github.com/openfga/openfga",
+      "license": "Apache-2.0",
+      "reviewedAt": "2026-11-08",
+      "installed": false,
+      "status": "adoption-candidate",
+      "when": "relationship-based sharing outgrows RBAC tables and RLS predicates"
+    },
+    {
+      "id": "cerbos",
+      "url": "https://github.com/cerbos/cerbos",
+      "license": "Apache-2.0",
+      "reviewedAt": "2026-11-08",
+      "installed": false,
+      "status": "adoption-candidate",
+      "when": "attribute-based policies exceed ~20 rules or must be audited separately from code"
+    }
   ]
 }

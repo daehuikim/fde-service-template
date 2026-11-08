@@ -1,10 +1,10 @@
 {
   "generator": "native SVG + resvg; no browser",
-  "sourceHash": "2cc2b1eae5a79e8db5121d86502840f33d21d05ade3870c67ae2c74c8b60d8cd",
+  "sourceHash": "a1271456f38e0737d86502eb0378a05c772ed4bcb5c0d87141a04643bd05f412",
   "files": {
     "hero.svg": "f29d89e80351480936eef85439852b9daaabff35cce3fc25df982b119bff575e",
-    "hero.png": "7b5259c82a3fdc45c5b2f741c81d9315062005799518d65e46096f858fe5ead1",
+    "hero.png": "ece48cff2e26c8bf339a750263bef57198ca415e544fa93fe2006cda184ce176",
     "architecture.svg": "02b565367767dd7be5aa9f5fe1249aae78e4ce9fa6e75f556e4f57859aeb87db",
-    "architecture.png": "59ae70e94ebd9cd9d059704476199d4a43559ecf25d377d55a52fcfd5d244b65"
+    "architecture.png": "1af1c4dc8e2f056ef9f736b0d4e27c35509584d943eaae79b304650443705cd9"
   }
 }
