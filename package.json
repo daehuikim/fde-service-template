@@ -31,7 +31,8 @@
     "assets:check": "node scripts/brand-assets.mjs --check",
     "docs:check": "node scripts/docs-check.mjs",
     "showcase": "node scripts/showcase.mjs",
-    "showcase:check": "node scripts/showcase.mjs --check"
+    "showcase:check": "node scripts/showcase.mjs --check",
+    "discussion": "node --import tsx packages/agents/cli.ts"
   },
   "dependencies": {
     "ajv": "8.20.0",

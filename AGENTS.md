@@ -4,6 +4,8 @@ This repository ships an offline Python CLI/library and a portable problem-desig
 
 For an operational design request, follow `.agents/skills/fde-workbench/SKILL.md`: concise draft first; compare relevant methods; separate evidence, assumptions and vendor claims; critique the approach; state expansion triggers and the next verification. Respect design-only scope. Ontology, LLM, RAG, optimization and a web framework are optional choices.
 
+To run several of those lenses on one field problem at once (parallel exploration, cross-review, traceable synthesis), use `.agents/skills/fde-multi-agent-review/SKILL.md`.
+
 For a feature teardown, compatibility/deployment-scalability review, validation-method review, customer-environment deployment fit, field debugging, security/data-boundary review or cost model, use the matching skill listed in `.agents/skills/README.md`. Customer environment probes, logs and questionnaires are customer data: keep them out of public files.
 
 For package work:

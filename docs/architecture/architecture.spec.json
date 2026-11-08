@@ -9,9 +9,9 @@
       "description": "입력 → 검토 → 정정 → 결과",
       "path": "apps/web/app/page.tsx",
       "items": [
-        "합성 CSV 입력",
-        "오류 근거 확인",
-        "검증 결과 내보내기"
+        "합성 CSV 입력 · 오류 근거",
+        "멀티 에이전트 토론 · 매트릭스",
+        "검증·토론 결과 내보내기"
       ],
       "color": "#7546dd"
     },
@@ -36,7 +36,7 @@
       "path": "packages/tools",
       "items": [
         "Next.js API · 세션 쿠키 / bearer",
-        "requirePermission · CSRF · 입력 한도",
+        "병렬 lens 에이전트 · NDJSON 스트림",
         "취소 · evidence · timeout 한도"
       ],
       "color": "#2866de"
@@ -49,7 +49,7 @@
       "path": "packages/domain",
       "items": [
         "중복 · 부서 · 금액 검증",
-        "상태 전이 invariant",
+        "토론 종합 · 합의/쟁점 규칙",
         "LLM 없는 핵심 경로"
       ],
       "color": "#5743db"
