@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "fde.discussion.v1",
+  "description": "Multi-agent discussion transcript: one problem, several lens agents exploring in parallel (round 1, blind) and cross-reviewing (round 2). Synthesis is computed by packages/domain/discussion.ts, never accepted from input.",
+  "definitions": {
+    "lens": {
+      "enum": ["discovery", "field-debug", "problem-design", "validation", "security", "target-env", "cost", "compat-scale"]
+    },
+    "text": { "type": "string", "minLength": 1, "maxLength": 600 },
+    "claimId": { "type": "string", "pattern": "^[a-z-]{3,20}\\.[0-9]{1,3}$" },
+    "problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "statement"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "statement": { "type": "string", "minLength": 10, "maxLength": 4000 },
+        "context": { "type": "string", "maxLength": 4000 }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "kind", "confidence", "tags"],
+      "properties": {
+        "id": { "$ref": "#/definitions/claimId" },
+        "statement": { "$ref": "#/definitions/text" },
+        "kind": { "enum": ["observation", "hypothesis", "assumption", "vendor_claim"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "tags": { "type": "array", "maxItems": 6, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9-]{2,30}$" } },
+        "evidence": { "type": "string", "maxLength": 600 }
+      }
+    },
+    "nextCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "cost", "resolves"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z-]{3,20}\\.c[0-9]{1,3}$" },
+        "action": { "$ref": "#/definitions/text" },
+        "cost": { "enum": ["low", "medium", "high"] },
+        "resolves": { "type": "array", "maxItems": 10, "uniqueItems": true, "items": { "$ref": "#/definitions/claimId" } }
+      }
+    },
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lens", "skill", "summary", "claims", "risks", "nextChecks", "questions", "durationMs"],
+      "properties": {
+        "lens": { "$ref": "#/definitions/lens" },
+        "skill": { "type": "string", "pattern": "^[a-z0-9-]{2,60}$" },
+        "summary": { "$ref": "#/definitions/text" },
+        "claims": { "type": "array", "minItems": 1, "maxItems": 12, "items": { "$ref": "#/definitions/claim" } },
+        "risks": { "type": "array", "maxItems": 8, "items": { "$ref": "#/definitions/text" } },
+        "nextChecks": { "type": "array", "maxItems": 8, "items": { "$ref": "#/definitions/nextCheck" } },
+        "questions": { "type": "array", "maxItems": 8, "items": { "$ref": "#/definitions/text" } },
+        "durationMs": { "type": "number", "minimum": 0 }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lens", "target", "stance", "note"],
+      "properties": {
+        "lens": { "$ref": "#/definitions/lens" },
+        "target": { "$ref": "#/definitions/claimId" },
+        "stance": { "enum": ["support", "challenge", "refine"] },
+        "note": { "$ref": "#/definitions/text" }
+      }
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lens", "round", "error"],
+      "properties": {
+        "lens": { "$ref": "#/definitions/lens" },
+        "round": { "enum": [1, 2] },
+        "error": { "enum": ["timeout", "agent_error", "invalid_output", "cancelled"] }
+      }
+    },
+    "transcript": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "problem", "lenses", "provider", "positions", "reviews", "failures"],
+      "properties": {
+        "version": { "const": "1" },
+        "problem": { "$ref": "#/definitions/problem" },
+        "lenses": { "type": "array", "minItems": 2, "maxItems": 8, "uniqueItems": true, "items": { "$ref": "#/definitions/lens" } },
+        "provider": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "mode"],
+          "properties": {
+            "id": { "type": "string", "pattern": "^[a-z0-9.-]{2,60}$" },
+            "mode": { "enum": ["fixture", "live", "imported"] }
+          }
+        },
+        "positions": { "type": "array", "maxItems": 8, "items": { "$ref": "#/definitions/position" } },
+        "reviews": { "type": "array", "maxItems": 200, "items": { "$ref": "#/definitions/review" } },
+        "failures": { "type": "array", "maxItems": 16, "items": { "$ref": "#/definitions/failure" } }
+      }
+    }
+  },
+  "$ref": "#/definitions/transcript"
+}
