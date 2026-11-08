@@ -14,6 +14,8 @@ services:
       dockerfile: deploy/Dockerfile
     environment:
       APP_MODE: live
+      APP_ORIGIN: https://${DOMAIN:?set DOMAIN}
+      SERVICE_PERMISSIONS: ${SERVICE_PERMISSIONS:-run:read,run:create}
       SERVICE_TOKEN: ${SERVICE_TOKEN:?set a random token of at least 32 bytes}
       SERVICE_TENANT: ${SERVICE_TENANT:-demo}
       DATABASE_URL: ${DATABASE_URL:?use the non-superuser runtime DB role}

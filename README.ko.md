@@ -90,7 +90,7 @@ fde skill install --directory .agents/skills
 | **고객 환경 매칭 배포 검토** | 고객 OS·커널·런타임·Kubernetes·네트워크 조건에 맞춘 배포 형태와 이미지 기준 |
 | **현장 장애 진단, 보안·데이터 경계, 비용 모델** | 환경 차이표와 가설 소거, 데이터 흐름과 외부 전송 목록, 단위 비용·민감도·손익분기 |
 
-이 저장소에는 같은 기능의 프로젝트 skill과 읽기 전용 고객 환경 수집 스크립트도 있습니다. [Skill 목록](.agents/skills/README.md)을 참고하세요.
+이 저장소에는 같은 기능의 프로젝트 skill, 읽기 전용 고객 환경 수집 스크립트, 그리고 앱 서버 하나에서 세션 로그인·테넌트 RBAC·RLS가 걸린 PostgreSQL 스키마·검증된 배포 설정까지 한 패키지로 확장하는 `fde-enterprise-stack` skill도 있습니다. [Skill 목록](.agents/skills/README.md)을 참고하세요.
 
 ## Python 코드에서 사용하기
 

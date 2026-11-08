@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add the `fde-enterprise-stack` skill: one workflow that takes a user task from UI state to API, RBAC, DB constraints, deployment settings and real-database verification, with references on auth/authorization tool selection, data-model and migration rules, network/frontend rules and a release checklist.
+- Add session authentication (`packages/auth`): scrypt password hashing with OWASP parameters, hashed opaque session tokens, HttpOnly cookies, same-origin CSRF checks and per-account login lockout; fixture mode ships demo accounts.
+- Add tenant RBAC and per-user working memory on PostgreSQL: 31 new tables across four forward-only migrations (identity, tenancy/RBAC, workspace, operations), row-level security on every tenant table, composite tenant foreign keys, append-only audit log, transactional outbox, jobs, idempotency keys and optimistic `version` locking; the migration runner now keeps a checksum ledger.
+- Add `/api/auth/*`, `/api/work-items` and `/api/memory` routes, a sidebar sign-in panel, `APP_ORIGIN`/`SERVICE_PERMISSIONS` settings, stricter Caddy headers, ADR 0002 and extended fixture and live-database tests.
+
 - Add open-source collaboration rules: governance and maintainer roles, Code of Conduct, bilingual contributing guide, CODEOWNERS, issue forms and an updated PR template.
 - Add a `main` branch ruleset (`.github/rulesets/main.json`) and a repository-settings record for maintainers.
 - Add a showcase: one JSON file per case in `showcase/entries`, rendered into `SHOWCASE.md` and the README by `scripts/showcase.mjs`, validated in CI by the `showcase` job.

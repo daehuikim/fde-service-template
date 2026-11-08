@@ -35,8 +35,8 @@
       "description": "도구 연결과 API 오케스트레이션",
       "path": "packages/tools",
       "items": [
-        "Next.js API · 서버 인증",
-        "CSV parser · AJV",
+        "Next.js API · 세션 쿠키 / bearer",
+        "requirePermission · CSRF · 입력 한도",
         "취소 · evidence · timeout 한도"
       ],
       "color": "#2866de"
@@ -61,9 +61,9 @@
       "description": "트랜잭션과 tenant 경계",
       "path": "packages/db",
       "items": [
-        "PostgreSQL · RLS",
-        "멱등 키 · 충돌 감지",
-        "migration · 제약 조건"
+        "PostgreSQL · 32 테이블 · RLS",
+        "RBAC · 감사 로그 · outbox · version",
+        "체크섬 ledger migration · 제약 조건"
       ],
       "color": "#c6780c"
     },
