@@ -1,6 +1,6 @@
 {
   "generator": "native SVG + resvg; no browser",
-  "sourceHash": "a1271456f38e0737d86502eb0378a05c772ed4bcb5c0d87141a04643bd05f412",
+  "sourceHash": "c5ed86fd7babdeee8da457a4b41fc4ca7970ba5b61b179f463985f9dfbc43310",
   "files": {
     "hero.svg": "f29d89e80351480936eef85439852b9daaabff35cce3fc25df982b119bff575e",
     "hero.png": "ece48cff2e26c8bf339a750263bef57198ca415e544fa93fe2006cda184ce176",

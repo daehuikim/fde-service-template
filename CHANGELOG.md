@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add a multi-agent discussion structure: lens agents bound to the project skills explore one problem in parallel (blind round 1), cross-review each other's claims (round 2), and a deterministic synthesis ranks consensus, contested claims and next checks. Includes the `discussion.v1` contract, `packages/agents` orchestrator with per-agent timeouts and failure records, an offline semiconductor fixture provider, `POST /api/discussions` (NDJSON stream or transcript import, `run:create`), the `/discussion` workspace, `pnpm discussion`, the `fde-multi-agent-review` skill and ADR 0003.
 - Add the `fde-enterprise-stack` skill: one workflow that takes a user task from UI state to API, RBAC, DB constraints, deployment settings and real-database verification, with references on auth/authorization tool selection, data-model and migration rules, network/frontend rules and a release checklist.
 - Add session authentication (`packages/auth`): scrypt password hashing with OWASP parameters, hashed opaque session tokens, HttpOnly cookies, same-origin CSRF checks and per-account login lockout; fixture mode ships demo accounts.
 - Add tenant RBAC and per-user working memory on PostgreSQL: 31 new tables across four forward-only migrations (identity, tenancy/RBAC, workspace, operations), row-level security on every tenant table, composite tenant foreign keys, append-only audit log, transactional outbox, jobs, idempotency keys and optimistic `version` locking; the migration runner now keeps a checksum ledger.
