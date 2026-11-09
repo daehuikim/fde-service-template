@@ -6,12 +6,15 @@ import {Button} from "../../components/ui/button";
 import {Sidebar} from "../../components/sidebar";
 import {lensCatalog,defaultLenses} from "../../../../packages/agents/lenses";
 import {samples} from "../../../../packages/agents/samples";
-import type {Discussion,LensId,Position,Problem,SynthesizedClaim,RankedAction,ClaimKind,Failure} from "../../../../packages/contracts/discussion";
+import type {Discussion,LensId,Position,Problem,SynthesizedClaim,RankedAction,ClaimKind,Failure,Severity,Verdict} from "../../../../packages/contracts/discussion";
+import {renderReport} from "../../../../packages/domain/report";
+import {builtInReviewers} from "../../../../packages/agents/reviewers";
 
 type Step="waiting"|"running"|"done"|"failed"|"skipped";
 interface Lane{r1:Step;r2:Step;ms1?:number;ms2?:number;claims?:number;reviews?:number;error?:Failure["error"]}
 type Phase="idle"|"running"|"done"|"error";
-type View="summary"|"matrix"|"positions";
+type View="summary"|"verify"|"matrix"|"positions";
+type FishState="running"|"retrying"|"done"|"not_run";
 const allLenses=Object.keys(lensCatalog) as LensId[];
 const lensColor:Record<LensId,string>={"discovery":"#3b6ea8","field-debug":"#b5542c","problem-design":"#6b4fb3","validation":"#0f7b6c","security":"#a3364f","target-env":"#4c617a","cost":"#9a6b0c","compat-scale":"#2f7d32"};
 const kindLabel:Record<ClaimKind,string>={observation:"관측",hypothesis:"가설",assumption:"가정",vendor_claim:"업체 주장"};
@@ -28,6 +31,11 @@ const messages:Record<string,string>={
  fixture_disabled_in_production:"운영 빌드에서는 합성 fixture 에이전트가 차단됩니다. 호스트에서 실행한 토론 기록을 가져와 종합하세요.",
  cancelled:"토론을 취소했습니다. 입력은 보존됩니다.",
 };
+const verdictLabel:Record<Verdict,string>={pass:"검증 통과",attention:"확인 필요",blocked:"보고서 결함",incomplete:"검증 미완료"};
+const verdictHelp:Record<Verdict,string>={pass:"맥락 없는 검토자가 주요 문제를 찾지 못했습니다.",attention:"결론을 쓰기 전에 주요 지적을 확인하세요.",blocked:"이 보고서로 결정하면 안 되는 결함이 있습니다.",incomplete:"일부 검토자가 실행되지 않았습니다. 지적이 없는 것과 다릅니다."};
+const severityLabel:Record<Severity,string>={blocker:"차단",major:"주요",nit:"사소"};
+const reviewerTitle=(id:string)=>builtInReviewers.find(r=>r.id===id)?.title??id.replace(/^host-/,"호스트 ");
+const reviewerFocus=(id:string)=>builtInReviewers.find(r=>r.id===id)?.focus??"호스트에서 맥락 없이 실행한 goldfish 검토자";
 const say=(code:string)=>messages[code]??"토론을 완료하지 못했습니다. 입력을 확인하고 다시 시도해 주세요.";
 const pct=(n:number)=>Math.round(n*100)+"%";
 const secs=(ms?:number)=>ms===undefined?"":(ms/1000).toFixed(1)+"s";
@@ -38,6 +46,7 @@ export default function DiscussionPage(){
  const [problem,setProblem]=useState<Problem>(samples[0].problem),[sample,setSample]=useState(samples[0].id);
  const [chosen,setChosen]=useState<LensId[]>(samples[0].lenses??defaultLenses);
  const [phase,setPhase]=useState<Phase>("idle"),[message,setMessage]=useState("예제 문제를 고르거나 직접 입력한 뒤 토론을 시작하세요.");
+ const [fish,setFish]=useState<Record<string,{state:FishState;findings?:number}>>({}),[decisions,setDecisions]=useState<Record<string,"accept"|"dismiss">>({});
  const [lanes,setLanes]=useState<Partial<Record<LensId,Lane>>>({}),[positions,setPositions]=useState<Position[]>([]);
  const [discussion,setDiscussion]=useState<Discussion|null>(null),[view,setView]=useState<View>("summary");
  const [transcript,setTranscript]=useState(""),[showAll,setShowAll]=useState(false),[registered,setRegistered]=useState<Record<string,"saving"|"saved"|"failed">>({});
@@ -45,7 +54,7 @@ export default function DiscussionPage(){
  const busy=phase==="running";
 
  function choose(id:string){const s=samples.find(x=>x.id===id);if(!s)return;setSample(id);setProblem(s.problem);setChosen(s.lenses);reset();}
- function reset(){finished.current=false;setDiscussion(null);setPositions([]);setLanes({});setPhase("idle");setRegistered({});}
+ function reset(){finished.current=false;setDiscussion(null);setPositions([]);setLanes({});setFish({});setDecisions({});setPhase("idle");setRegistered({});}
  function toggle(l:LensId){setChosen(c=>c.includes(l)?c.filter(x=>x!==l):allLenses.filter(x=>c.includes(x)||x===l));}
  function patch(l:LensId,p:Partial<Lane>){setLanes(s=>({...s,[l]:{...(s[l]??{r1:"waiting",r2:"waiting"}),...p}}));}
 
@@ -55,11 +64,12 @@ export default function DiscussionPage(){
    else if(e.state==="done") patch(e.lens,{[r]:"done",[ms]:e.durationMs,...(e.round===1?{claims:e.count}:{reviews:e.count})});
    else patch(e.lens,{[r]:"failed",error:e.error,...(e.round===1?{r2:"skipped"}:{})});
    if(e.round===2&&e.state==="running") setMessage("서로의 주장을 교차 검토하고 있습니다.");}
+  else if(e.type==="goldfish"){setFish(f=>({...f,[e.reviewer]:{state:e.state,findings:e.findings}}));if(e.state==="running"&&e.reviewer==="structural")setMessage("종합 보고서를 맥락 없는 goldfish 검토자에게 넘겨 검증하고 있습니다.");}
   else if(e.type==="position") setPositions(p=>[...p,e.position]);
   else if(e.type==="done") finish(e.discussion);
   else if(e.type==="error") throw new Error(e.error);
  }
- function finish(d:Discussion){finished.current=true;setDiscussion(d);setShowAll(false);requestAnimationFrame(()=>document.querySelector(".synthesis")?.scrollIntoView({behavior:"smooth",block:"start"}));setPhase("done");setView("summary");setMessage(d.synthesis.headline);
+ function finish(d:Discussion){finished.current=true;setFish(Object.fromEntries(d.verification.reviewers.map(r=>[r.reviewer,{state:r.status==="completed"?"done":"not_run",findings:r.findings}])));setDiscussion(d);setShowAll(false);requestAnimationFrame(()=>document.querySelector(".synthesis")?.scrollIntoView({behavior:"smooth",block:"start"}));setPhase("done");setView("summary");setMessage(d.synthesis.headline);
   // Lanes for agents that had no peer to review (single survivor) end as skipped, not waiting.
   setLanes(s=>Object.fromEntries(Object.entries(s).map(([k,v])=>[k,v&&v.r2==="waiting"?{...v,r2:"skipped"}:v])));}
 
@@ -97,14 +107,17 @@ export default function DiscussionPage(){
    if(!res.ok){const d=await res.json().catch(()=>({}));throw new Error(d.error);}setRegistered(r=>({...r,[a.id]:"saved"}));}
   catch(e){setRegistered(r=>({...r,[a.id]:"failed"}));setMessage(say(e instanceof Error?e.message:"tool_failure"));}
  }
- function download(){if(!discussion)return;const url=URL.createObjectURL(new Blob([JSON.stringify(discussion,null,2)],{type:"application/json"}));const a=document.createElement("a");a.href=url;a.download=`discussion-${discussion.sourceHash.slice(0,8)}.json`;a.click();URL.revokeObjectURL(url);}
+ function save(text:string,type:string,name:string){const url=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);}
+ // Human decisions on goldfish findings travel with the export; they never change the verdict, which stays the reviewers'.
+ function download(){if(!discussion)return;save(JSON.stringify({...discussion,humanDecisions:decisions},null,2),"application/json",`discussion-${discussion.sourceHash.slice(0,8)}.json`);}
+ function downloadReport(){if(!discussion)return;const {verification:_v,...base}=discussion;save(renderReport(base),"text/markdown",`discussion-${discussion.sourceHash.slice(0,8)}.md`);}
 
  const s=discussion?.synthesis;
  const allClaims=useMemo(()=>s?[...s.contested,...s.consensus,...s.singleSource]:[],[s]);
 
  return <><Sidebar active="discussion"/><main><header><span>워크스페이스 / 멀티 에이전트 토론</span><span className="badge">● SYNTHETIC DEMO</span></header>
- <section className="intro"><p className="eyebrow">FIELD PROBLEM / MULTI-AGENT DISCUSSION</p><h1>한 문제를 여러 관점이 동시에.<br/><span>합의와 쟁점은 근거로 정리합니다.</span></h1><p>반도체 현장 문제 하나를 원인·검증·데이터 경계·배포·비용 관점의 에이전트가 병렬로 탐색합니다.<br/>서로의 주장을 교차 검토한 뒤 합의·쟁점·우선 확인 항목을 결정적으로 종합합니다.</p></section>
- <div className="steps"><b>01　문제 정의</b><span>→</span><b>02　독립 탐색 · 병렬</b><span>→</span><b>03　교차 검토 · 병렬</b><span>→</span><b>04　종합 · 다음 확인</b></div>
+ <section className="intro"><p className="eyebrow">FIELD PROBLEM / MULTI-AGENT DISCUSSION</p><h1>한 문제를 여러 관점이 동시에.<br/><span>합의와 쟁점은 근거로 정리합니다.</span></h1><p>반도체 현장 문제 하나를 원인·검증·데이터 경계·배포·비용 관점의 에이전트가 병렬로 탐색합니다.<br/>서로의 주장을 교차 검토한 뒤 합의·쟁점·우선 확인 항목을 결정적으로 종합하고,<br/>그 보고서를 토론 맥락이 없는 goldfish 검토자가 다시 검증합니다.</p></section>
+ <div className="steps"><b>01　문제 정의</b><span>→</span><b>02　독립 탐색 · 병렬</b><span>→</span><b>03　교차 검토 · 병렬</b><span>→</span><b>04　종합 · 다음 확인</b><span>→</span><b>05　Goldfish 검증</b></div>
 
  <div className="workspace discuss-setup">
   <section className="panel"><div className="panel-head"><div><p className="eyebrow">PROBLEM PACKET</p><h2>현장 문제</h2></div></div>
@@ -131,14 +144,16 @@ export default function DiscussionPage(){
   {(Object.keys(lanes) as LensId[]).map(l=>{const v=lanes[l]!;return <div className="lane" key={l} style={{"--lens":lensColor[l]} as React.CSSProperties}><div className="lane-name"><i/><b>{lensCatalog[l].title}</b><code>{lensCatalog[l].skill}</code></div>
    <div className={"pill "+v.r1}>1 독립 탐색 · {stepLabel[v.r1]}{v.r1==="done"&&<> · 주장 {v.claims} · {secs(v.ms1)}</>}{v.r1==="failed"&&v.error&&<> · {errorLabel[v.error]}</>}</div>
    <div className={"pill "+v.r2}>2 교차 검토 · {stepLabel[v.r2]}{v.r2==="done"&&<> · 의견 {v.reviews}{v.ms2!==undefined&&<> · {secs(v.ms2)}</>}</>}{v.r2==="failed"&&v.error&&<> · {errorLabel[v.error]}</>}</div></div>;})}
+  {Object.keys(fish).length>0&&<div className="fish-row"><span className="fish-label">3 Goldfish 검증</span>{Object.entries(fish).map(([k,v])=><div key={k} className={"pill "+(v.state==="done"?"done":v.state==="not_run"?"failed":"running")}>{reviewerTitle(k)} · {v.state==="done"?`완료 · 지적 ${v.findings??0}`:v.state==="not_run"?"미실행":v.state==="retrying"?"재시도 중":"검토 중"}</div>)}</div>}
   {busy&&positions.length>0&&<p className="hint">먼저 끝난 관점: {positions.map(p=>lensCatalog[p.lens].title).join(" · ")}</p>}
  </section>}
 
  {discussion&&s&&<>
-  <section className="panel synthesis"><p className="eyebrow">SYNTHESIS</p><h2>{discussion.problem.title}</h2><p className="headline">{s.headline}</p>
+  <section className="panel synthesis"><p className="eyebrow">SYNTHESIS</p><h2>{discussion.problem.title}</h2>
+   <button type="button" className={"verdict "+discussion.verification.verdict} onClick={()=>setView("verify")}><b>{verdictLabel[discussion.verification.verdict]}</b><span>{verdictHelp[discussion.verification.verdict]}</span><small>{(["blocker","major","nit"] as Severity[]).map(k=>`${severityLabel[k]} ${discussion.verification.findings.filter(f=>f.severity===k).length}`).join(" · ")} · 검증 결과 보기 →</small></button><p className="headline">{s.headline}</p>
    <div className="metrics four"><div><strong>{s.consensus.length}</strong>합의</div><div><strong>{s.contested.length}</strong>쟁점</div><div><strong>{s.singleSource.length}</strong>단일 관점</div><div><strong>{pct(s.agreement)}</strong>합의도<span className="meter" aria-hidden><span style={{width:pct(s.agreement)}}/></span></div></div>
    <p className="hint">탐색 {s.coverage.explored}/{s.coverage.requested} · 교차 검토 {s.coverage.reviewed} · 실패 {s.coverage.failed.length?s.coverage.failed.map(f=>`${lensCatalog[f.lens].title}(${f.round}차, ${errorLabel[f.error]})`).join(", "):"없음"} · SHA-256 {discussion.sourceHash.slice(0,12)}<br/>합의도 = 합의 / (합의 + 쟁점). 종합은 규칙으로 계산되며 모든 줄이 주장 id와 관점으로 추적됩니다.</p>
-   <div className="tabs" role="tablist">{([["summary","종합"],["matrix","토론 매트릭스"],["positions","관점별 원문"]] as [View,string][]).map(([k,t])=><button key={k} role="tab" aria-selected={view===k} className={view===k?"on":""} onClick={()=>setView(k)}>{t}</button>)}<span className="grow"/><Button onClick={download}>토론 JSON 내보내기 ↓</Button></div>
+   <div className="tabs" role="tablist">{([["summary","종합"],["verify",`Goldfish 검증 ${discussion.verification.findings.length}`],["matrix","토론 매트릭스"],["positions","관점별 원문"]] as [View,string][]).map(([k,t])=><button key={k} role="tab" aria-selected={view===k} className={view===k?"on":""} onClick={()=>setView(k)}>{t}</button>)}<span className="grow"/><Button onClick={downloadReport}>보고서 Markdown ↓</Button><Button onClick={download}>토론 JSON 내보내기 ↓</Button></div>
   </section>
 
   {view==="summary"&&<div className="workspace summary-grid">
@@ -159,6 +174,13 @@ export default function DiscussionPage(){
   {view==="matrix"&&<section className="panel matrix-panel"><p className="eyebrow">STANCE MATRIX</p><h2>누가 무엇에 동의하고 반대했나</h2><p className="hint">● 작성 · ✓ 지지 · ✕ 반대 · △ 보완 · 셀에 마우스를 올리면 의견이 보입니다.</p>
    <div className="matrix-scroll"><table className="matrix"><thead><tr><th scope="col">주장</th>{discussion.lenses.map(l=><th scope="col" key={l} style={{"--lens":lensColor[l]} as React.CSSProperties}><span>{lensCatalog[l].title}</span></th>)}</tr></thead>
     <tbody>{allClaims.map(c=><tr key={c.claim.id} className={c.status}><th scope="row"><ClaimHead c={c}/><span className="stmt">{c.claim.statement}</span></th>{discussion.lenses.map(l=>{const r=discussion.reviews.find(x=>x.lens===l&&x.target===c.claim.id);const mark=c.author===l?"●":r?.stance==="support"?"✓":r?.stance==="challenge"?"✕":r?.stance==="refine"?"△":"";return <td key={l} className={r?.stance??(c.author===l?"author":"")} title={c.author===l?"작성한 관점":r?.note}>{mark}<span className="sr-only">{c.author===l?"작성":r?`${r.stance}: ${r.note}`:"의견 없음"}</span></td>;})}</tr>)}</tbody></table></div>
+  </section>}
+
+  {view==="verify"&&<section className="panel verify-panel"><p className="eyebrow">ELEPHANT · GOLDFISH</p><h2>맥락 없는 검토자가 본 보고서</h2>
+   <p className="hint">토론을 진행한 오케스트레이터(elephant)는 모든 맥락을 갖고 있어 자기 보고서의 빈틈을 놓치기 쉽습니다. Goldfish 검토자는 토론 기록 없이 <b>보고서와 문제 패킷만</b> 읽고 지적합니다. 구조 검증은 기록의 일관성을 규칙으로 확인합니다. 실패한 검토자는 "지적 없음"이 아니라 "미실행"으로 표시됩니다. 어떤 지적을 반영할지는 사람이 정합니다. · 보고서 SHA-256 {discussion.verification.documentHash.slice(0,12)}</p>
+   <div className="reviewer-grid">{discussion.verification.reviewers.map(r=><div key={r.reviewer} className={"reviewer "+r.status}><b>{reviewerTitle(r.reviewer)}</b><code>{r.reviewer}{r.source==="host"?" · 호스트":""}</code><small>{reviewerFocus(r.reviewer)}</small><span>{r.status==="completed"?`완료 · 지적 ${r.findings}`:"미실행"}{r.attempts>1?` · ${r.attempts}회 시도`:""}</span></div>)}</div>
+   {discussion.verification.findings.length?<ul className="findings">{discussion.verification.findings.map(f=><li key={f.id} className={"finding "+f.severity+(decisions[f.id]?" decided-"+decisions[f.id]:"")}><div className="claim-head"><span className={"sev "+f.severity}>{severityLabel[f.severity]}</span><code>{f.id}</code><span className="conf">범위 {f.scope}</span></div><p>{f.finding}</p><small>권고: {f.recommendation}</small>
+    <div className="decide" role="group" aria-label={`${f.id} 처리`}>{(["accept","dismiss"] as const).map(k=><button key={k} type="button" className={"link"+(decisions[f.id]===k?" on":"")} aria-pressed={decisions[f.id]===k} onClick={()=>setDecisions(d=>{const n={...d};if(n[f.id]===k)delete n[f.id];else n[f.id]=k;return n;})}>{k==="accept"?"반영하기":"근거 있어 보류"}</button>)}</div></li>)}</ul>:<p className="hint">지적이 없습니다. 지적이 없다는 것이 결론이 옳다는 뜻은 아닙니다.</p>}
   </section>}
 
   {view==="positions"&&<div className="positions">{discussion.positions.map(p=><section key={p.lens} className="panel position" style={{"--lens":lensColor[p.lens]} as React.CSSProperties}><p className="eyebrow">{p.skill} · {secs(p.durationMs)}</p><h2>{lensCatalog[p.lens].title}</h2><p className="summary">{p.summary}</p>

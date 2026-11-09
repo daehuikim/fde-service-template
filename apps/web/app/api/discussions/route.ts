@@ -14,7 +14,7 @@ function provider():AgentProvider{
 export async function POST(req:Request){try{
  const {principal}=await authenticate(req);requirePermission(principal,"run:create");
  const b=await readBody(req);
- if("transcript" in b){onlyKeys(b,["transcript"]);return Response.json(synthesizeTranscript(b.transcript),{headers:{"cache-control":"no-store"}});}
+ if("transcript" in b){onlyKeys(b,["transcript"]);return Response.json(await synthesizeTranscript(b.transcript,{signal:req.signal}),{headers:{"cache-control":"no-store"}});}
  onlyKeys(b,["problem","lenses"]);const input=parseRequest(b);const agents=provider();
  const total=AbortSignal.any([req.signal,AbortSignal.timeout(discussionCapability.totalTimeoutMs)]);const enc=new TextEncoder();
  const stream=new ReadableStream<Uint8Array>({async start(c){

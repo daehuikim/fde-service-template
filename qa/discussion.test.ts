@@ -5,6 +5,9 @@ import {samples} from "../packages/agents/samples";
 import {synthesize} from "../packages/domain/discussion";
 import {assertTranscript,type Transcript} from "../packages/contracts/discussion";
 import {POST} from "../apps/web/app/api/discussions/route";
+import {renderReport} from "../packages/domain/report";
+import {structuralAudit} from "../packages/domain/verification";
+import {comprehensionGoldfish,zoomOutGoldfish,type GoldfishReviewer} from "../packages/agents/goldfish";
 import {POST as login} from "../apps/web/app/api/auth/login/route";
 
 const sample=samples.find(s=>s.id==="etch-cd-drift")!;
@@ -81,7 +84,68 @@ describe("deterministic synthesis",()=>{
   expect(bad(x=>{x.positions[0].nextChecks[0].resolves=["security.1"];})).toThrow("invalid_transcript");
   expect(bad(x=>{(x as unknown as {synthesis:unknown}).synthesis={};})).toThrow("invalid_transcript");
  });
- it("re-synthesizes imported transcripts and marks provenance",()=>{const d=synthesizeTranscript({...t,provider:{id:"claude-code",mode:"live"}});expect(d.provider).toEqual({id:"claude-code",mode:"imported"});expect(d.synthesis.contested).toHaveLength(1);});
+ it("re-synthesizes imported transcripts and marks provenance",async()=>{const d=await synthesizeTranscript({...t,provider:{id:"claude-code",mode:"live"}});expect(d.provider).toEqual({id:"claude-code",mode:"imported"});expect(d.synthesis.contested).toHaveLength(1);});
+});
+
+describe("elephant-goldfish verification (round 3)",()=>{
+ it("runs after synthesis and reports every reviewer with a verdict",async()=>{
+  const events:DiscussionEvent[]=[];
+  const d=await runDiscussion({problem:sample.problem,lenses:sample.lenses},fixtureProvider(),{onEvent:e=>events.push(e)});
+  const lastReview=events.map((e,i)=>e.type==="agent"&&e.round===2?i:-1).reduce((a,b)=>Math.max(a,b));
+  expect(events.findIndex(e=>e.type==="goldfish")).toBeGreaterThan(lastReview);
+  expect(d.verification.reviewers.map(r=>[r.reviewer,r.status])).toEqual([["structural","completed"],["comprehension","completed"],["zoom-out","completed"]]);
+  expect(d.verification.documentHash).toMatch(/^[0-9a-f]{64}$/);
+  // etch sample: the problem says 폐쇄망 but target-env was not chosen; one contested claim has no deciding check.
+  expect(d.verification.findings.some(f=>f.reviewer==="zoom-out"&&f.finding.includes("target-env"))).toBe(true);
+  expect(d.verification.verdict).toBe("attention");
+ });
+ it("gives goldfish only the rendered report and the problem, never the transcript",async()=>{
+  let seen:unknown;
+  const spy:GoldfishReviewer={id:"spy",title:"spy",focus:"spy",async review(p){seen=p;return [];}};
+  const d=await runDiscussion({problem:sample.problem,lenses:["discovery","validation"]},fixtureProvider(),{goldfish:[spy]});
+  expect(Object.keys(seen as object).sort()).toEqual(["document","problem"]);
+  const {verification:_v,...base}=d;
+  expect((seen as {document:string}).document).toBe(renderReport(base));
+ });
+ it("retries a failing goldfish once and marks it not_run instead of 'no findings'",async()=>{
+  let calls=0;const flaky:GoldfishReviewer={id:"flaky",title:"f",focus:"f",async review(){calls++;throw new Error("down");}};
+  let calls2=0;const second:GoldfishReviewer={id:"second-try",title:"s",focus:"s",async review(){calls2++;if(calls2===1)return [{severity:"bogus"}] as never;return [{severity:"nit",scope:"x",finding:"ok finding",recommendation:"ok"}];}};
+  const d=await runDiscussion({problem:sample.problem,lenses:["discovery","validation"]},fixtureProvider(),{goldfish:[flaky,second]});
+  expect(calls).toBe(2);
+  expect(d.verification.reviewers.find(r=>r.reviewer==="flaky")).toMatchObject({status:"not_run",attempts:2,findings:0});
+  expect(d.verification.reviewers.find(r=>r.reviewer==="second-try")).toMatchObject({status:"completed",attempts:2,findings:1});
+  expect(["incomplete","blocked"]).toContain(d.verification.verdict);
+ });
+ it("structural audit flags failures, undecidable disputes, unsupported observations and silent lenses",async()=>{
+  const d=await runDiscussion({problem:sample.problem,lenses:["discovery","field-debug"]},fixtureProvider());
+  const {verification:_v,...base}=d;const x=structuredClone(base);
+  x.failures=[{lens:"discovery",round:2,error:"timeout"}];
+  x.positions[1].claims[0]={...x.positions[1].claims[0],kind:"observation",evidence:undefined};delete x.positions[1].claims[0].evidence;
+  x.synthesis.contested=[{claim:x.positions[1].claims[0],author:"field-debug",status:"contested",supporters:[],challenges:[{lens:"discovery",note:"n"}],refinements:[],weight:0}];
+  x.positions[1].nextChecks=[];x.reviews=[];
+  const f=structuralAudit(x);
+  expect(f.some(i=>i.scope==="discovery · 2라운드"&&i.severity==="major")).toBe(true);
+  expect(f.some(i=>i.scope===x.positions[1].claims[0].id&&i.finding.includes("판별할 확인"))).toBe(true);
+  expect(f.some(i=>i.finding.includes("관측(observation)"))).toBe(true);
+  expect(f.some(i=>i.scope==="field-debug"&&i.finding.includes("의견을 하나도"))).toBe(true);
+  x.positions=x.positions.slice(0,1);expect(structuralAudit(x).some(i=>i.severity==="blocker")).toBe(true);
+ });
+ it("comprehension goldfish: unparaphrasable report is a blocker; undefined acronyms are flagged",async()=>{
+  const problem={title:"t",statement:"synthetic statement"};
+  expect((await comprehensionGoldfish.review({problem,document:"# x\n\n## 한 줄 결론\n\n결론\n\n## 우선 확인할 일\n\n- 없음\n"},new AbortController().signal))[0].severity).toBe("blocker");
+  const r=await comprehensionGoldfish.review({problem,document:"# x\n\n## 한 줄 결론\n\nQZX와 PM 확인\n\n## 우선 확인할 일\n\n1. `a.c1` 확인 (판별 대상 `a.1`)\n\n## 쟁점\n\n- `a.1` s\n"},new AbortController().signal);
+  expect(r.map(f=>f.finding).join()).toContain("QZX");expect(r.map(f=>f.finding).join()).not.toContain("PM");
+  expect((await zoomOutGoldfish.review({problem:{title:"t",statement:"폐쇄망 ML 가상 계측"},document:"관점: discovery, field-debug\n"},new AbortController().signal)).map(f=>f.finding).join()).toMatch(/security[\s\S]*target-env[\s\S]*validation/);
+ });
+ it("merges host-run goldfish findings from an imported transcript and rejects malformed ones",async()=>{
+  const d=await runDiscussion({problem:sample.problem,lenses:["discovery","validation"]},fixtureProvider());
+  const {sourceHash:_h,synthesis:_s,verification:_v,...t}=d;
+  const host={reviewers:[{reviewer:"design-critic",status:"completed" as const,findings:[{severity:"blocker" as const,scope:"discovery.1",finding:"The baseline claim cannot be tested as written.",recommendation:"Name the observation that would falsify it."}]},{reviewer:"structural",status:"not_run" as const,findings:[]}]};
+  const v=(await synthesizeTranscript({...t,verification:host})).verification;
+  expect(v.verdict).toBe("blocked");expect(v.findings[0].id).toBe("design-critic.f1");
+  expect(v.reviewers.find(r=>r.reviewer==="host-structural")).toMatchObject({source:"host",status:"not_run"});
+  await expect(synthesizeTranscript({...t,verification:{reviewers:[{reviewer:"x1x",status:"completed",findings:[{severity:"fatal",scope:"a",finding:"b",recommendation:"c"}]}]}})).rejects.toThrow("invalid_transcript");
+ });
 });
 
 describe("discussion API",()=>{
@@ -94,7 +158,7 @@ describe("discussion API",()=>{
  });
  it("imports a transcript and rejects unknown fields or bad lenses",async()=>{
   const d=await runDiscussion({problem:sample.problem,lenses:["discovery","validation"]},fixtureProvider());
-  const {sourceHash:_h,synthesis:_s,...transcript}=d;
+  const {sourceHash:_h,synthesis:_s,verification:_v,...transcript}=d;
   const r=await POST(req({transcript}));expect(r.status).toBe(200);expect((await r.json()).provider.mode).toBe("imported");
   expect((await POST(req({transcript:{...transcript,synthesis:{}}}))).status).toBe(400);
   expect((await POST(req({problem:sample.problem,lenses:["discovery"]}))).status).toBe(400);

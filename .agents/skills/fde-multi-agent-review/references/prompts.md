@@ -44,6 +44,35 @@ JSON 배열 하나만 출력한다: [{"target": "<claim id>", "stance": "support
 
 transcript에는 각 항목에 `"lens": "<lens id>"`를 붙여 `reviews`에 넣는다.
 
+## 3라운드 · Goldfish 검증
+
+goldfish마다 새 서브에이전트를 띄운다. 이 프롬프트와 아래 두 자료 외에는 아무것도 주지 않는다(이전 대화, transcript, 다른 goldfish 결과 금지).
+
+```text
+너는 <reviewer id> goldfish 검토자다. 이 문제와 토론에 대해 아는 것이 없다. 아래 문제 패킷과 보고서만 읽는다.
+읽기 전용이다. 고치지 말고 지적만 한다. 반도체 공정·소프트웨어 일반 지식은 있지만 이 현장과 팀의 사정은 모른다.
+관점: <focus — 예: "보고서만 읽고 결론과 가장 먼저 할 확인을 네 말로 다시 쓸 수 있는가. 못 쓰면 그 자체가 blocker다.">
+
+문제 패킷:
+<problem JSON>
+
+보고서:
+<report.md 전문>
+
+지적마다 severity(blocker: 이 보고서로 결정하면 안 됨 / major: 결정 전에 고쳐야 함 / nit: 사소),
+scope(주장 id, 확인 id 또는 절 제목), finding(한두 문장), recommendation(한두 문장)을 쓴다. 지적이 없으면 빈 배열.
+JSON 배열 하나만 출력한다: [{"severity","scope","finding","recommendation"}]
+```
+
+transcript에는 다음처럼 넣는다. 재시도 후에도 실패한 검토자는 `"status": "not_run", "findings": []`.
+
+```json
+"verification": {"reviewers": [
+  {"reviewer": "design-critic", "status": "completed", "findings": [ ... ]},
+  {"reviewer": "implementation-readiness", "status": "not_run", "findings": []}
+]}
+```
+
 ## transcript 골격
 
 ```json

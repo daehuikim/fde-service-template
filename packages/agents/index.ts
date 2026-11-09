@@ -6,6 +6,10 @@ import { createHash } from "node:crypto";
 import { assertProblem, assertTranscript, isPosition, isReview, lensIds, type Claim, type Discussion, type Failure, type LensId, type NextCheck, type Position, type Problem, type Review, type Stance, type Transcript } from "../contracts/discussion";
 import { synthesize } from "../domain/discussion";
 import { lensCatalog, type Lens } from "./lenses";
+import { AgentFailure, bounded } from "./bounded";
+import { verifyDiscussion, type GoldfishEvent, type GoldfishReviewer, type VerifyOptions } from "./goldfish";
+
+export { builtInReviewers, defaultGoldfish, type GoldfishReviewer, type GoldfishPacket } from "./goldfish";
 
 export { lensCatalog, defaultLenses } from "./lenses";
 export const discussionCapability = { id: "discussion.v1", minLenses: 2, maxLenses: lensIds.length, agentTimeoutMs: 20000, totalTimeoutMs: 120000, externalTransfer: false, sideEffects: false };
@@ -25,28 +29,16 @@ export type DiscussionEvent =
   | { type: "agent"; round: 1 | 2; lens: LensId; state: "done"; durationMs: number; count: number }
   | { type: "agent"; round: 1 | 2; lens: LensId; state: "failed"; error: Failure["error"] }
   | { type: "position"; position: Position }
+  | GoldfishEvent
   | { type: "done"; discussion: Discussion };
 
-export interface RunOptions { signal?: AbortSignal; agentTimeoutMs?: number; onEvent?: (e: DiscussionEvent) => void }
+export interface RunOptions { signal?: AbortSignal; agentTimeoutMs?: number; goldfish?: GoldfishReviewer[]; onEvent?: (e: DiscussionEvent) => void }
 
 export function parseRequest(body: Record<string, unknown>): { problem: Problem; lenses: LensId[] } {
   assertProblem(body.problem);
   const lenses = body.lenses;
   if (!Array.isArray(lenses) || lenses.length < discussionCapability.minLenses || lenses.length > discussionCapability.maxLenses || new Set(lenses).size !== lenses.length || lenses.some(l => !(lensIds as readonly unknown[]).includes(l))) throw new Error("invalid_input");
   return { problem: body.problem, lenses: lenses as LensId[] };
-}
-
-class AgentFailure extends Error { constructor(readonly code: Failure["error"]) { super(code); } }
-async function bounded<T>(work: (signal: AbortSignal) => Promise<T>, outer: AbortSignal, ms: number): Promise<T> {
-  const local = new AbortController(), timer = setTimeout(() => local.abort(), ms);
-  const signal = AbortSignal.any([outer, local.signal]);
-  const reason = () => new AgentFailure(outer.aborted ? "cancelled" : "timeout");
-  let onAbort = () => {};
-  // Race against the signal so an agent that ignores cancellation cannot hold the round open.
-  const aborted = new Promise<never>((_, reject) => { onAbort = () => reject(reason()); signal.addEventListener("abort", onAbort, { once: true }); });
-  try { if (signal.aborted) throw reason(); return await Promise.race([work(signal), aborted]); }
-  catch (e) { throw e instanceof AgentFailure ? e : signal.aborted ? reason() : new AgentFailure("agent_error"); }
-  finally { clearTimeout(timer); signal.removeEventListener("abort", onAbort); }
 }
 
 export async function runDiscussion(input: { problem: Problem; lenses: LensId[] }, provider: AgentProvider, options: RunOptions = {}): Promise<Discussion> {
@@ -96,21 +88,25 @@ export async function runDiscussion(input: { problem: Problem; lenses: LensId[] 
 
   const order = (a: Failure, b: Failure) => a.round - b.round || lenses.indexOf(a.lens) - lenses.indexOf(b.lens);
   const transcript: Transcript = { version: "1", problem, lenses, provider: { id: provider.id, mode: provider.mode }, positions, reviews: reviewed.flat(), failures: failures.sort(order) };
-  const discussion = finalize(transcript);
+  const discussion = await finalize(transcript, { reviewers: options.goldfish, signal: outer, timeoutMs: ms, onEvent: emit });
   emit({ type: "done", discussion });
   return discussion;
 }
 
 // Host-run discussions (the fde-multi-agent-review skill) arrive as a transcript file. It is checked like any agent output
-// and re-synthesized here; its provenance is recorded as imported.
-export function synthesizeTranscript(input: unknown): Discussion {
+// and re-synthesized here; its provenance is recorded as imported. Goldfish findings the host ran are merged, and the
+// built-in reviewers still run on the re-rendered report.
+export async function synthesizeTranscript(input: unknown, options: Omit<VerifyOptions, "host"> = {}): Promise<Discussion> {
   assertTranscript(input);
-  return finalize({ ...input, provider: { id: input.provider.id, mode: "imported" } });
+  return finalize({ ...input, provider: { id: input.provider.id, mode: "imported" } }, options);
 }
 
-function finalize(t: Transcript): Discussion {
+// Round 3: once synthesized by the context-holding orchestrator, the report goes to fresh-context goldfish reviewers.
+async function finalize(t: Transcript, options: Omit<VerifyOptions, "host">): Promise<Discussion> {
   assertTranscript(t);
-  const stable = { ...t, positions: t.positions.map(({ durationMs: _d, ...p }) => p) };
-  return { ...t, sourceHash: createHash("sha256").update(JSON.stringify(stable)).digest("hex"), synthesis: synthesize(t) };
+  const { verification: host, ...rest } = t;
+  const stable = { ...rest, positions: rest.positions.map(({ durationMs: _d, ...p }) => p) };
+  const base = { ...rest, sourceHash: createHash("sha256").update(JSON.stringify(stable)).digest("hex"), synthesis: synthesize(rest) };
+  return { ...base, verification: await verifyDiscussion(base, { ...options, host }) };
 }
 const pickExploration = (o: Exploration) => ({ summary: o?.summary, claims: o?.claims, risks: o?.risks, nextChecks: o?.nextChecks, questions: o?.questions });

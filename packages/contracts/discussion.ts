@@ -13,7 +13,12 @@ export interface NextCheck { id: string; action: string; cost: "low" | "medium" 
 export interface Position { lens: LensId; skill: string; summary: string; claims: Claim[]; risks: string[]; nextChecks: NextCheck[]; questions: string[]; durationMs: number }
 export interface Review { lens: LensId; target: string; stance: Stance; note: string }
 export interface Failure { lens: LensId; round: 1 | 2; error: "timeout" | "agent_error" | "invalid_output" | "cancelled" }
-export interface Transcript { version: "1"; problem: Problem; lenses: LensId[]; provider: { id: string; mode: "fixture" | "live" | "imported" }; positions: Position[]; reviews: Review[]; failures: Failure[] }
+// Round 3 (Elephant-Goldfish): reviewers with no access to the discussion itself read only the rendered report
+// and the problem packet, and report findings by severity. "not_run" is never the same as "no findings".
+export type Severity = "blocker" | "major" | "nit";
+export interface GoldfishFinding { severity: Severity; scope: string; finding: string; recommendation: string }
+export interface HostVerification { reviewers: { reviewer: string; status: "completed" | "not_run"; findings: GoldfishFinding[] }[] }
+export interface Transcript { version: "1"; problem: Problem; lenses: LensId[]; provider: { id: string; mode: "fixture" | "live" | "imported" }; positions: Position[]; reviews: Review[]; failures: Failure[]; verification?: HostVerification }
 
 export type ClaimStatus = "consensus" | "contested" | "single_source";
 export interface Remark { lens: LensId; note: string }
@@ -31,12 +36,18 @@ export interface Synthesis {
   questions: Merged[];
   risks: Merged[];
 }
-export interface Discussion extends Transcript { sourceHash: string; synthesis: Synthesis }
+export interface VerificationFinding extends GoldfishFinding { id: string; reviewer: string }
+export interface ReviewerStatus { reviewer: string; source: "built-in" | "host"; status: "completed" | "not_run"; attempts: number; findings: number }
+export type Verdict = "pass" | "attention" | "blocked" | "incomplete";
+export interface Verification { verdict: Verdict; documentHash: string; reviewers: ReviewerStatus[]; findings: VerificationFinding[] }
+export interface Discussion extends Omit<Transcript, "verification"> { sourceHash: string; synthesis: Synthesis; verification: Verification }
 
 const ajv = new Ajv({ allErrors: true, strict: true });
 ajv.addSchema(schema);
 const get = (def: string) => { const v = ajv.getSchema(`fde.discussion.v1#/definitions/${def}`); if (!v) throw new Error("schema_missing"); return v; };
 const transcriptValidator = get("transcript"), positionValidator = get("position"), reviewValidator = get("review"), problemValidator = get("problem");
+const findingValidator = get("goldfishFinding");
+export const isGoldfishFinding = (v: unknown): v is GoldfishFinding => findingValidator(v) as boolean;
 
 export const isPosition = (v: unknown): v is Position => positionValidator(v) as boolean;
 export const isReview = (v: unknown): v is Review => reviewValidator(v) as boolean;
@@ -60,4 +71,6 @@ export function assertTranscript(v: unknown): asserts v is Transcript {
     seenReview.add(key);
   }
   for (const f of t.failures) if (!t.lenses.includes(f.lens)) throw new Error("invalid_transcript");
+  const hostReviewers = t.verification?.reviewers.map(r => r.reviewer) ?? [];
+  if (new Set(hostReviewers).size !== hostReviewers.length) throw new Error("invalid_transcript");
 }
