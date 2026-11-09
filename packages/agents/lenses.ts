@@ -15,3 +15,13 @@ export const lensCatalog: Record<LensId, Lens> = {
 };
 // Fab troubleshooting starts from what changes a decision, why it happens, which method, whether the proof holds, and what data may move.
 export const defaultLenses: LensId[] = ["discovery", "field-debug", "problem-design", "validation", "security"];
+
+// Goldfish reviewers the skill runs in round 3. Each is a fresh subagent that sees only the report and the problem
+// packet. This list labels them in the UI; their prompts live in the skill's references/prompts.md.
+export const goldfishCatalog: Record<string, { title: string; focus: string }> = {
+  "structural": { title: "구조 검증", focus: "보고서 안에서 앞뒤가 맞는가: 실패·침묵한 관점, 판별 수단 없는 쟁점, 근거 없는 관측, 반대 없는 합의" },
+  "comprehension": { title: "처음 읽는 사람", focus: "보고서만 읽고 결론과 첫 조치를 다시 말할 수 있는가, 정의 없는 용어는 없는가" },
+  "zoom-out": { title: "관점 이탈", focus: "문제의 조건(폐쇄망, ML, 수율, 확장)을 다룰 관점이 빠지지 않았는가, 근본 문제를 보고 있는가" },
+  "design-critic": { title: "논증 비판", focus: "결론과 순위가 기록된 주장·반대 의견에서 실제로 따라 나오는가" },
+  "implementation-readiness": { title: "현장 실행 가능성", focus: "첫 확인을 데이터 위치·담당·소요까지 정해 바로 실행할 수 있는가" },
+};

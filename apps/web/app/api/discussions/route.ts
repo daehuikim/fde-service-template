@@ -1,26 +1,14 @@
-// Multi-agent discussion API.
-// POST {problem, lenses}  → NDJSON stream of agent events, ending with {"type":"done","discussion":…}
-// POST {transcript}       → JSON discussion, re-checked and re-synthesized from a host-run transcript
-// Both need run:create. Only the offline fixture provider ships; live mode needs a provider registered here.
+// Multi-agent discussion import API.
+// POST {record} → JSON discussion. The record is produced by a host assistant running the fde-multi-agent-review
+// skill (exploration, cross-review, synthesis and goldfish verification are all skill steps). This route only checks
+// the contract, reference integrity and that the goldfish reviewed exactly this report; it runs no agent and judges nothing.
+// Needs run:create.
 import {readBody,failure} from "../guard";
 import {authenticate,onlyKeys} from "../session";
 import {requirePermission} from "../../../../../packages/auth";
-import {runDiscussion,synthesizeTranscript,parseRequest,discussionCapability,type AgentProvider} from "../../../../../packages/agents";
-import {fixtureProvider} from "../../../../../packages/agents/fixture";
-function provider():AgentProvider{
- if((process.env.APP_MODE??"fixture")==="fixture"){if(process.env.NODE_ENV==="production") throw new Error("fixture_disabled_in_production");return fixtureProvider({simulateLatency:process.env.DISCUSSION_LATENCY!=="off"});}
- throw new Error("provider_unavailable");
-}
+import {acceptDiscussion} from "../../../../../packages/agents/record";
 export async function POST(req:Request){try{
  const {principal}=await authenticate(req);requirePermission(principal,"run:create");
- const b=await readBody(req);
- if("transcript" in b){onlyKeys(b,["transcript"]);return Response.json(synthesizeTranscript(b.transcript),{headers:{"cache-control":"no-store"}});}
- onlyKeys(b,["problem","lenses"]);const input=parseRequest(b);const agents=provider();
- const total=AbortSignal.any([req.signal,AbortSignal.timeout(discussionCapability.totalTimeoutMs)]);const enc=new TextEncoder();
- const stream=new ReadableStream<Uint8Array>({async start(c){
-  const send=(e:unknown)=>{try{c.enqueue(enc.encode(JSON.stringify(e)+"\n"));}catch{}};
-  try{await runDiscussion(input,agents,{signal:total,onEvent:send});}catch(e){send({type:"error",error:e instanceof Error&&e.message==="cancelled"?"cancelled":"tool_failure"});}
-  try{c.close();}catch{}
- }});
- return new Response(stream,{headers:{"content-type":"application/x-ndjson; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}});
+ const b=await readBody(req);onlyKeys(b,["record"]);
+ return Response.json(acceptDiscussion(b.record),{headers:{"cache-control":"no-store"}});
 }catch(e){return failure(e);}}

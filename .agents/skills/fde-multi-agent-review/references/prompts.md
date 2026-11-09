@@ -44,14 +44,82 @@ JSON 배열 하나만 출력한다: [{"target": "<claim id>", "stance": "support
 
 transcript에는 각 항목에 `"lens": "<lens id>"`를 붙여 `reviews`에 넣는다.
 
-## transcript 골격
+## 종합 · synthesizer
 
-```json
-{"version": "1",
- "problem": {"title": "...", "statement": "...", "context": "..."},
- "lenses": ["discovery", "field-debug", "validation"],
- "provider": {"id": "claude-code", "mode": "live"},
- "positions": [], "reviews": [], "failures": []}
+새 서브에이전트 하나에 보낸다. 토론에 참여한 관점 에이전트에게 맡기지 않는다.
+
+```text
+너는 멀티 에이전트 토론의 종합 담당이다. 새 주장을 만들지 않고, 아래 기록에 있는 주장·의견만으로 종합한다.
+
+문제 패킷: <problem JSON>
+관점 결과(position): <positions JSON>
+교차 검토 의견(review): <reviews JSON>
+실패한 관점: <failures JSON>
+
+1. 모든 주장 id를 정확히 한 번씩 분류한다.
+   - contested: 구체적 반대 이유가 있어 지금 기록으로는 결론이 나지 않는 주장
+   - consensus: 다른 관점이 같은 판단에 이른 이유를 냈고 남은 반대가 없는 주장
+   - single_source: 다른 관점의 의미 있는 검토가 없어 한 관점의 판단으로만 남은 주장
+   반대 의견이 있어도 보완으로 해소되었다고 보면 그렇게 분류하고 note에 이유를 쓴다. 기계적으로 세지 말고 의견의 내용을 읽는다.
+2. 우선 확인할 일: 관점들이 낸 nextChecks 중에서 최대 12개를 골라 순서대로 둔다. 순서는 결정을 가장 빨리 바꾸는 것, 쟁점을 판별하는 것, 비용이 낮은 것을 함께 따진다. 순위마다 rationale에 "왜 이 순서인가"를 한두 문장으로 쓴다. 고르지 않은 확인은 빼도 된다.
+3. headline: 가장 먼저 할 확인 하나와 그 이유가 들어간 한두 문장. 원인을 확정하는 표현을 쓰지 않는다.
+4. questions, risks: 관점들이 낸 것 중 결정에 영향을 주는 것만, 중복을 합쳐서.
+실패한 관점이 있으면 headline이나 risks에 그 관점이 빠졌다는 사실을 드러낸다.
+
+JSON 하나만 출력한다:
+{"headline": "...", "claims": [{"id": "...", "status": "consensus|contested|single_source", "note?": "..."}],
+ "actions": [{"check": "<lens>.c<n>", "rationale": "..."}], "questions": ["..."], "risks": ["..."]}
 ```
 
-`pnpm discussion demo cvd-particle`로 완성된 예시(합성)를 볼 수 있다.
+transcript의 `synthesis`에 그대로 넣는다. `pnpm discussion check`가 모든 주장이 분류되었는지, 없는 확인을 고르지 않았는지 확인한다.
+
+## 3라운드 · Goldfish 검증
+
+goldfish마다 새 서브에이전트를 띄운다. 이 프롬프트와 아래 두 자료 외에는 아무것도 주지 않는다(이전 대화, transcript, 다른 goldfish 결과 금지).
+
+```text
+너는 <reviewer id> goldfish 검토자다. 이 문제와 토론에 대해 아는 것이 없다. 아래 문제 패킷과 보고서만 읽는다.
+읽기 전용이다. 고치지 말고 지적만 한다. 반도체 공정·소프트웨어 일반 지식은 있지만 이 현장과 팀의 사정은 모른다.
+관점: <focus — 예: "보고서만 읽고 결론과 가장 먼저 할 확인을 네 말로 다시 쓸 수 있는가. 못 쓰면 그 자체가 blocker다.">
+
+문제 패킷:
+<problem JSON>
+
+보고서:
+<report.md 전문>
+
+지적마다 severity(blocker: 이 보고서로 결정하면 안 됨 / major: 결정 전에 고쳐야 함 / nit: 사소),
+scope(주장 id, 확인 id 또는 절 제목), finding(한두 문장), recommendation(한두 문장)을 쓴다. 지적이 없으면 빈 배열.
+JSON 배열 하나만 출력한다: [{"severity","scope","finding","recommendation"}]
+```
+
+검토자별 관점(focus)은 `packages/agents/lenses.ts`의 `goldfishCatalog`를 쓴다.
+- `structural`: 보고서 안에서 앞뒤가 맞는가. 실패·침묵한 관점이 드러나는가, 판별할 확인이 없는 쟁점, 근거 없는 관측, 반대 없이 쌓인 합의.
+- `comprehension`: 보고서만 읽고 결론과 가장 먼저 할 확인을 네 말로 다시 쓸 수 있는가. 정의 없는 용어·약어가 있는가.
+- `zoom-out`: 문제의 조건(폐쇄망, ML, 수율, 확장 등)을 다룰 관점이 빠지지 않았는가, 근본 문제를 보고 있는가.
+- `design-critic`: 결론과 순위가 기록된 주장·반대 의견에서 실제로 따라 나오는가.
+- `implementation-readiness`: 첫 확인을 데이터 위치·담당·소요까지 정해 바로 실행할 수 있는가.
+
+기록에는 다음처럼 넣는다. 재시도 후에도 실패한 검토자는 `"status": "not_run", "attempts": 2, "findings": []`.
+
+```json
+"verification": {"reportHash": "<pnpm discussion report가 출력한 값>", "verdict": "pass|attention|blocked|incomplete",
+ "reviewers": [
+  {"reviewer": "design-critic", "status": "completed", "attempts": 1, "findings": [ ... ]},
+  {"reviewer": "implementation-readiness", "status": "not_run", "attempts": 2, "findings": []}
+]}
+```
+
+## 기록 골격
+
+```json
+{"version": "2",
+ "problem": {"title": "...", "statement": "...", "context": "..."},
+ "lenses": ["discovery", "field-debug", "validation"],
+ "runner": {"host": "claude-code", "model": "<선택>"},
+ "positions": [], "reviews": [], "failures": [],
+ "synthesis": {"headline": "...", "claims": [], "actions": [], "questions": [], "risks": []},
+ "verification": {"reportHash": "...", "verdict": "incomplete", "reviewers": []}}
+```
+
+완성된 합성 예시는 `packages/agents/examples/cvd-particle.discussion.json`이다(`pnpm discussion check`로 확인 가능).
