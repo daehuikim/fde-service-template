@@ -8,7 +8,7 @@ This directory holds the assistant skills for field-deployment and problem-solvi
 
 | 상황 | Skill | 결과물 |
 |---|---|---|
-| **한 문제를 여러 관점 에이전트가 병렬로 탐색·교차 검토·종합** | [fde-multi-agent-review](fde-multi-agent-review/SKILL.md) | 관점별 독립 탐색, 지지/반대/보완 매트릭스, 합의·쟁점·우선 확인 목록, 맥락 없는 goldfish 검증 판정 (`pnpm discussion`, 웹 `/discussion`) |
+| **한 문제를 여러 관점 에이전트가 병렬로 탐색·교차 검토·종합** | [fde-multi-agent-review](fde-multi-agent-review/SKILL.md) | 관점별 독립 탐색, 지지/반대/보완 매트릭스, 종합 서브에이전트의 합의·쟁점·우선 확인, 맥락 없는 goldfish 검증 판정 (`pnpm discussion report|check`, 웹 `/discussion`에서 기록 보기) |
 | 새 현장 문제, 무엇을 만들지 결정 | [fde-problem-design](fde-problem-design/SKILL.md) · 설치형 [fde-workbench](fde-workbench/SKILL.md) | 7항목 초안, 방법 비교, design.json |
 | 현장 업무·현행 대안 조사 | [fde-discovery](fde-discovery/SKILL.md) | 문제와 baseline 후보, 미확인 가설 |
 | **오픈소스·상용 솔루션 기능 해체 분석** | [fde-feature-teardown](fde-feature-teardown/SKILL.md) | 모듈 × 솔루션 매트릭스, 근거 등급, 모듈별 채택/통합/구현/제외 결정 |
