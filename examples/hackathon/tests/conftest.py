@@ -6,8 +6,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from hk import db  # noqa: E402
-from hk.web import App  # noqa: E402
+from api import db  # noqa: E402
+from api.app import App  # noqa: E402
 
 
 class Client:

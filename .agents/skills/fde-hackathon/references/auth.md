@@ -1,6 +1,6 @@
 # 인증·인가
 
-코드: `examples/hackathon/hk/auth.py`, 테스트: `examples/hackathon/tests/test_auth.py`
+코드: `examples/hackathon/api/auth.py`, 테스트: `examples/hackathon/tests/test_auth.py`
 
 ## 인증(누구인가)
 

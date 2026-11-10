@@ -35,6 +35,12 @@ class Invalid(AppError):
         super().__init__("입력값을 확인해 주세요", fields=fields)
 
 
+class Unavailable(AppError):
+    """503: 선택 의존성(ortools) 미설치처럼 운영자가 고칠 수 있는 상태."""
+
+    status, code = 503, "unavailable"
+
+
 class Conflict(AppError):
     status, code = 409, "conflict"
 

@@ -1,11 +1,11 @@
 """솔버 골격: 세 가지 상태, 독립 검사기, 현행 대비, 사람 수정 후 재검증."""
 
 import pytest
-from hk.solver.checker import check_assignment, check_covering
+from core.checker import check_assignment, check_covering
 
 pytest.importorskip("ortools")
-from hk.solver import assignment, covering  # noqa: E402
-from hk.solver.result import Status  # noqa: E402
+from core import assignment, covering  # noqa: E402
+from core.result import Status  # noqa: E402
 
 TEAM = {
     "technicians": [
@@ -57,7 +57,7 @@ def test_covering_optimal_and_infeasible():
 
 
 def test_checker_is_independent_of_solver():
-    import hk.solver.checker as c
+    import core.checker as c
 
     lines = open(c.__file__, encoding="utf-8").read().splitlines()
     assert not [x for x in lines if x.startswith(("import ", "from "))]

@@ -15,7 +15,7 @@ from . import auth, domain
 from .errors import SERVER_ERROR_BODY, AppError, Invalid, NotFound
 
 log = logging.getLogger("hk")
-STATIC = Path(__file__).resolve().parent.parent / "static"
+STATIC = Path(__file__).resolve().parent.parent / "web"
 COOKIE = "hk_session"
 
 
@@ -134,9 +134,9 @@ def run_plan(kind: str, body: dict) -> dict:
         raise Invalid({"time_limit": "0초 초과 60초 이하"})
     try:
         if kind == "assignment":
-            from .solver import assignment as mod
+            from core import assignment as mod
         else:
-            from .solver import covering as mod
+            from core import covering as mod
     except ImportError as e:
         raise AppError(
             "솔버(ortools)가 설치되지 않았습니다. pip install -r requirements.txt"

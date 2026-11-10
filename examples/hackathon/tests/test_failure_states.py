@@ -1,7 +1,7 @@
 """실패 상태 7종을 재현한다(references/failure-states.md)."""
 
 import pytest
-from hk.solver.result import Result, Status
+from core.result import Result, Status
 
 
 def test_401_not_logged_in(client):
@@ -32,7 +32,7 @@ def test_200_infeasible_is_business_result(client):
 
 def test_200_timeout_shows_best_with_flag(client, monkeypatch):
     pytest.importorskip("ortools")
-    from hk.solver import covering
+    from core import covering
 
     monkeypatch.setattr(
         covering,
@@ -50,7 +50,7 @@ def test_200_timeout_shows_best_with_flag(client, monkeypatch):
 
 
 def test_500_hides_details(client, monkeypatch, caplog):
-    from hk import domain
+    from api import domain
 
     def boom(*a):
         raise RuntimeError("secret internal detail")
