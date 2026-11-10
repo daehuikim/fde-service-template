@@ -6,6 +6,8 @@ For an operational design request, follow `.agents/skills/fde-workbench/SKILL.md
 
 To run several of those lenses on one field problem at once (parallel exploration, cross-review, traceable synthesis), use `.agents/skills/fde-multi-agent-review/SKILL.md`.
 
+For a time-boxed hackathon build (field interview → login/DB web service → optimization → oral check), follow `.agents/skills/fde-hackathon/SKILL.md` and its `DAY_OF.md`. Starter code is `examples/hackathon/` (stdlib Python + SQLite, no Docker/PostgreSQL; `sh examples/hackathon/start.sh`). In that mode: ask scope-narrowing questions before implementing; computation and validation are deterministic code (solver, checker, SQL constraints) and the LLM only interprets and drafts; run tests and commit per feature; record one sentence per generated structure on which layer does what; stop adding features 30 minutes before the end; cross-check key outputs with a second, context-free session.
+
 For a feature teardown, compatibility/deployment-scalability review, validation-method review, customer-environment deployment fit, field debugging, security/data-boundary review or cost model, use the matching skill listed in `.agents/skills/README.md`. Customer environment probes, logs and questionnaires are customer data: keep them out of public files.
 
 For package work:
