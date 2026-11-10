@@ -1,6 +1,6 @@
 # 실패 상태 계약
 
-코드: `hk/errors.py`(서버), `static/index.html`의 `api()`(공통 화면 처리). 테스트: `tests/test_failure_states.py`
+코드: `api/errors.py`(서버), `web/index.html`의 `api()`(공통 화면 처리). 테스트: `tests/test_failure_states.py`
 
 | 상황 | 코드 | 응답 본문 | 화면 |
 |---|---|---|---|

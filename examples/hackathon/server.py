@@ -8,8 +8,8 @@ import logging
 import os
 from http.server import HTTPServer
 
-from hk import db
-from hk.web import App, make_handler, secure_cookie_from_env
+from api import db
+from api.app import App, make_handler, secure_cookie_from_env
 
 
 def main() -> None:

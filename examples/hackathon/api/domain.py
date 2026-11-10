@@ -2,6 +2,8 @@
 
 import sqlite3
 
+from core.budget import shortfall
+
 from .auth import authorize
 from .errors import Conflict, Invalid, NotFound
 
@@ -51,12 +53,12 @@ def create_request(conn, user: dict, body: dict) -> dict:
 
 def check_budget(budget: sqlite3.Row, cost: int) -> None:
     """쓰기 직전의 서버 검증기(두 번째 방어선). 첫째는 솔버 제약, 셋째는 DB CHECK."""
-    remaining = budget["amount"] - budget["spent"]
-    if cost > remaining:
+    short = shortfall(budget["amount"], budget["spent"], cost)
+    if short:
         raise Conflict(
-            f"예산이 {cost - remaining:,}원 부족합니다",
-            remaining=remaining,
-            shortfall=cost - remaining,
+            f"예산이 {short:,}원 부족합니다",
+            remaining=budget["amount"] - budget["spent"],
+            shortfall=short,
         )
 
 
