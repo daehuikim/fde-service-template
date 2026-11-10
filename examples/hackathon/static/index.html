@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>해커톤 스타터</title>
+<style>
+ body{font-family:system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#1b1b1b}
+ .box{border:1px solid #ddd;border-radius:8px;padding:12px 16px;margin:12px 0}
+ .state{padding:10px 12px;border-radius:6px;margin:8px 0}
+ .state.error{background:#fdecea}.state.warn{background:#fff4e5}.state.info{background:#eef4ff}.state.ok{background:#eaf7ee}
+ table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #eee;padding:6px;text-align:left}
+ input{padding:6px;margin:2px}.field-error{color:#b00020;font-size:13px}
+ [hidden]{display:none}
+</style>
+</head>
+<body>
+<h1>정비 요청·승인</h1>
+<div id="status"></div>
+
+<section id="login" class="box" hidden>
+ <h2>로그인</h2>
+ <form id="login-form">
+  <input name="email" placeholder="이메일" value="engineer@example.com" autocomplete="username">
+  <input name="password" type="password" placeholder="비밀번호" autocomplete="current-password">
+  <button>로그인</button>
+ </form>
+ <p>시드 계정: viewer / engineer / engineer2 / lead / admin @example.com, 비밀번호 <code>hackathon-demo</code></p>
+</section>
+
+<section id="main" hidden>
+ <p id="who"></p><button id="logout">로그아웃</button>
+ <div class="box"><h2>예산</h2><div id="budgets"></div></div>
+ <div class="box"><h2>요청</h2><div id="requests"></div>
+  <form id="create-form">
+   <input name="title" placeholder="작업 제목"> <span class="field-error" data-field="title"></span>
+   <input name="cost" placeholder="비용(원)" inputmode="numeric"> <span class="field-error" data-field="cost"></span>
+   <button>요청 생성</button>
+  </form>
+ </div>
+ <div class="box"><h2>최적화 예시(배치·덮개)</h2>
+  <label>예산 <input id="plan-budget" value="7000000"></label> <button id="plan-run">계산</button>
+  <div id="plan"></div>
+ </div>
+</section>
+
+<script>
+// 공통 실패 상태 컴포넌트: 모든 API 응답은 여기를 거친다(references/failure-states.md).
+const $ = s => document.querySelector(s);
+function show(kind, html){ $("#status").innerHTML = `<div class="state ${kind}">${html}</div>`; }
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+async function api(method, path, body){
+  const res = await fetch(path, {method, headers: body ? {"content-type":"application/json"} : {}, body: body ? JSON.stringify(body) : undefined, credentials:"same-origin"});
+  let data = {}; try { data = await res.json(); } catch {}
+  document.querySelectorAll(".field-error").forEach(e => e.textContent = "");
+  if (res.status === 401) { $("#main").hidden = true; $("#login").hidden = false; show("info", esc(data.message || "로그인이 필요합니다")); throw data; }
+  if (res.status === 403) { show("error", `권한 없음: ${esc(data.message)}`); throw data; }
+  if (res.status === 422) {
+    for (const [f, m] of Object.entries(data.fields || {})) { const el = document.querySelector(`[data-field="${f}"]`); if (el) el.textContent = m; }
+    show("warn", "입력값을 확인해 주세요: " + Object.entries(data.fields||{}).map(([f,m]) => `${esc(f)} – ${esc(m)}`).join(", "));
+    throw data;
+  }
+  if (res.status >= 500) { show("error", "잠시 후 다시 시도해 주세요"); throw data; }
+  if (!res.ok) { show("warn", esc(data.message || data.error)); throw data; }
+  return data;
+}
+function renderPlan(r){
+  if (r.status === "INFEASIBLE") return `<div class="state warn"><b>해 없음</b> (업무 결과)<br>충돌: ${r.conflicts.map(esc).join("; ")}<br>완화안: ${r.relaxation.map(esc).join(" / ")}</div>`;
+  const badge = r.status === "FEASIBLE_TIMEOUT" ? `<div class="state warn">시간 초과: 찾은 최선의 해, <b>최적 미보장</b></div>` : `<div class="state ok">최적해</div>`;
+  return badge + `<p>선택: ${esc(JSON.stringify(r.solution))}, 비용 ${esc(r.objective)}</p><p>${esc(r.comparison || "")}</p>`;
+}
+async function load(){
+  const me = await api("GET", "/api/me");
+  $("#login").hidden = true; $("#main").hidden = false; $("#status").innerHTML = "";
+  $("#who").textContent = `${me.name} (${me.role}, 라인 ${me.line})`;
+  const b = await api("GET", "/api/budgets");
+  $("#budgets").innerHTML = "<table><tr><th>라인</th><th>예산</th><th>승인됨</th></tr>" + b.items.map(x => `<tr><td>${esc(x.line)}</td><td>${x.amount.toLocaleString()}</td><td>${x.spent.toLocaleString()}</td></tr>`).join("") + "</table>";
+  const r = await api("GET", "/api/requests");
+  $("#requests").innerHTML = r.items.length ? "<table><tr><th>#</th><th>제목</th><th>비용</th><th>상태</th><th></th></tr>" + r.items.map(x => `<tr><td>${x.id}</td><td>${esc(x.title)}</td><td>${x.cost.toLocaleString()}</td><td>${x.status}</td><td>${x.status==="pending"?`<button data-approve="${x.id}">승인</button>`:""}</td></tr>`).join("") + "</table>" : `<p>${esc(r.empty_message)}</p>`;
+}
+$("#login-form").onsubmit = async e => { e.preventDefault(); const f = new FormData(e.target); try { await api("POST", "/api/login", {email:f.get("email"), password:f.get("password")}); await load(); } catch {} };
+$("#logout").onclick = async () => { await api("POST", "/api/logout"); location.reload(); };
+$("#create-form").onsubmit = async e => { e.preventDefault(); const f = new FormData(e.target); const c = Number(f.get("cost")); try { await api("POST", "/api/requests", {title:f.get("title"), cost: Number.isInteger(c) && f.get("cost") !== "" ? c : f.get("cost")}); e.target.reset(); await load(); show("ok", "요청을 만들었습니다"); } catch {} };
+document.addEventListener("click", async e => { const id = e.target.dataset?.approve; if (!id) return; try { await api("POST", `/api/requests/${id}/approve`); await load(); show("ok", "승인했습니다"); } catch {} });
+$("#plan-run").onclick = async () => {
+  const problem = {budget: Number($("#plan-budget").value), required_zones:["Z1","Z2","Z3","Z4"], sites:[
+    {id:"C1",cost:3000000,covers:["Z1","Z2"]},{id:"C2",cost:2500000,covers:["Z2","Z3"]},{id:"C3",cost:2000000,covers:["Z3","Z4"]},{id:"C4",cost:4000000,covers:["Z1","Z4"]}]};
+  try { $("#plan").innerHTML = renderPlan(await api("POST", "/api/plan/covering", {problem})); } catch {}
+};
+load().catch(() => {});
+</script>
+</body>
+</html>
